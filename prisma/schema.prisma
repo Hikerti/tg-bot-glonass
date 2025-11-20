@@ -11,23 +11,33 @@ model User {
   id        String   @id @default(uuid())
   name      String
   email     String?
-  tgId      String?
-  role      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  tg_id     String?
+  role      UserRole
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   @@map("user")
 }
 
 model Post {
   id        String   @id @default(uuid())
-  type      String
+  type      PostType
   text      String
   interval  String
   dates     String[]
-  media     String[]
+  media     String[] @default([])
   active    Boolean
-  createdAt DateTime @default(now())
+  created_at DateTime @default(now())
 
   @@map("posts")
+}
+
+enum UserRole {
+    admin
+    client
+}
+
+enum PostType {
+    tg
+    mail
 }

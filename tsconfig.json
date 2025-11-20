@@ -26,6 +26,7 @@
       "@domains": [
         "libs/domains/src"
       ],
+      "@generated/*": ["generated/prisma/*"],
       "@infrastract": [
         "libs/infrastract/src"
       ],
