@@ -1,0 +1,46 @@
+name: "infrastructure"
+
+networks:
+  glonass_cluster:
+    external: true
+
+services:
+  postgres:
+    image: postgres:17
+    container_name: ${DATABASE_HOST}
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_DB}
+    ports:
+      - "${DATABASE_PORT}:5432"
+    volumes:
+      - ../.deploy/data/postgres:/var/lib/postgresql/data
+      - ./postgres/setup.sql:/docker-entrypoint-initdb.d/setup.sql
+    networks:
+      - glonass_cluster
+
+  adminer:
+    container_name: adminer
+    image: adminer:latest
+    ports:
+      - "${DATABASE_UI_PORT}:8080"
+    depends_on:
+      - postgres
+    networks:
+      - glonass_cluster
+
+  minio:
+    image: minio/minio
+    container_name: ${S3_HOST}
+    environment:
+      MINIO_ROOT_USER: ${S3_USER}
+      MINIO_ROOT_PASSWORD: ${S3_PASSWORD}
+    command: server /data --console-address ":${S3_UI_PORT}" --address ":${S3_PORT}"
+    ports:
+      - "${S3_PORT}:${S3_PORT}"
+      - "${S3_UI_PORT}:${S3_UI_PORT}"
+    volumes:
+      - ../.deploy/data/minio:/data
+    networks:
+      - glonass_cluster

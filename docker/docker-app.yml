@@ -1,0 +1,39 @@
+name: "app"
+
+networks:
+  glonass_cluster:
+    external: true
+
+x-common-env: &common-env
+  DATABASE_URL: ${DATABASE_URL}
+  S3_URL: ${S3_URL}
+  S3_USER: ${S3_USER}
+  S3_PASSWORD: ${S3_PASSWORD}
+
+services:
+  gate:
+    container_name: gate
+    build:
+      context: ..
+      dockerfile: ./docker/gate/Dockerfile
+    command: ["bun", "dist/apps/gate/main.js"]
+    ports:
+      - "${GATE_HTTP_PORT}:${GATE_HTTP_PORT}"
+
+    depends_on:
+      - postgres
+    networks:
+      - glonass_cluster
+
+  bot:
+    container_name: bot
+    build:
+      context: ..
+      dockerfile: ./docker/bot/Dockerfile
+    command: ["bun", "dist/apps/bot/main.js"]
+    environment:
+      <<: *common-env
+    depends_on:
+      - postgres
+    networks:
+      - glonass_cluster
