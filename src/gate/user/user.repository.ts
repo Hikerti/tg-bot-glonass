@@ -21,11 +21,6 @@ export class UserRepository {
         return UserDTO.fromModel(user);
     }
 
-    async findById(id: string): Promise<UserDTO | null> {
-        const user = await this.getUser(id)
-        return user;
-    }
-
     async update(id: string, userData: UserDTO.Update): Promise<UserDTO> {
         const user = await this.prisma.user.update({
             where: { id },

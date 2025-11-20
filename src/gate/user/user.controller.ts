@@ -12,14 +12,9 @@ import {
 import { UserService } from './user.service';
 import { UserDTO } from '@domains';
 
-@Controller('user')
+@Controller('users')
 export class UserController {
     constructor(private readonly userService: UserService) {}
-
-    @Get(':id')
-    async findById(@Param('id') id: string): Promise<UserDTO | null> {
-        return this.userService.findById(id);
-    }
 
     @Get()
     async getList(

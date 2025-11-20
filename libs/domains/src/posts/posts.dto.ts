@@ -1,6 +1,6 @@
 import { IsArray, IsBoolean, IsString } from 'class-validator';
 import { OmitType, PartialType } from '@nestjs/mapped-types';
-import {Post, PostType} from '@generated/client';
+import { Post, PostType } from "@prisma/client";
 
 export class PostDTO {
     @IsString()

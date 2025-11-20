@@ -6,10 +6,6 @@ import {UserDTO} from "@domains";
 export class UserService {
     constructor(private readonly userRepository: UserRepository) {}
 
-    async findById(id: string): Promise<UserDTO | null> {
-        return await this.userRepository.findById(id);
-    }
-
     async getListUsers(page: number, limit: number): Promise<{ items: UserDTO[], total: number, page: number, limit: number }> {
         return await this.userRepository.getList(page, limit)
     }
