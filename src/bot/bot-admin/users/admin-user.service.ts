@@ -1,46 +1,26 @@
-import {Update, Ctx, Start, InjectBot, Command, Action} from 'nestjs-telegraf';
-import { Telegraf } from 'telegraf';
-import { Markup } from 'telegraf';
-
-import {UserDTO} from "@domains";
-
-import axios from "axios";
-
+import {Action, Command, Ctx, Update} from "nestjs-telegraf";
 import {ConfigService} from "@nestjs/config";
-
+import axios from "axios";
+import {UserDTO} from "@domains";
+import {Markup} from "telegraf";
 
 @Update()
-export class AdminService {
-    private currentPage = 1;
+export class AdminUserService {
+    private currentPage = 1
 
-    constructor(
-        private config: ConfigService,
-        @InjectBot('adminBot')
-        private adminBot: Telegraf,
-    ) {}
+    constructor(private config: ConfigService) {
 
-    @Start()
-    async onStart(@Ctx() ctx) {
-        if (ctx.botInfo.username !== this.adminBot.botInfo?.username) return;
-
-        ctx.reply('Добро пожаловать в админ панель Glonass-bot.\n' +
-            'Если хочешь узнат что я умею, напиши /help');
     }
 
-    @Command('help')
-    async help(@Ctx() ctx) {
-        ctx.reply(
-            'Доступные команды:\n' +
-            '/userList - показать всех пользователей\n' +
-            '/createPostForMail - отправить сообщение всем\n' +
-            '/start - статистика бота'
-        )
-    }
-
-    @Command('userList')
+    @Command('get_users')
     async getUsersList(@Ctx() ctx) {
         this.currentPage = 1;
         await this.sendUsersPage(ctx, this.currentPage);
+    }
+
+    @Command('create_user')
+    async createUser(@Ctx() ctx) {
+
     }
 
     @Action('next_users')
@@ -59,6 +39,7 @@ export class AdminService {
         const limit = 10;
         try {
             const response = await axios.get(`${this.config.get<string>('GATE_URL')}/users`, {
+                method: "GET",
                 params: { page, limit },
             });
 

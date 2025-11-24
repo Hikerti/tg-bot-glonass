@@ -1,4 +1,4 @@
-import { Update, Ctx, Start, InjectBot } from 'nestjs-telegraf';
+import {Update, Ctx, Start, InjectBot, Command} from 'nestjs-telegraf';
 import { Telegraf } from 'telegraf';
 
 @Update()
@@ -10,8 +10,14 @@ export class ClientService {
 
     @Start()
     async onStart(@Ctx() ctx) {
-        if (ctx.botInfo.username !== this.clientBot.botInfo?.username) return;
-
         ctx.reply('Это клиентский-бот 👑');
+    }
+
+    @Command('help')
+    async help(@Ctx() ctx) {
+        ctx.reply(
+            'Доступные команды:\n' +
+            '/userList - показать всех пользователей\n'
+        )
     }
 }

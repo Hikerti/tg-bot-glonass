@@ -5,13 +5,14 @@ import { PrismaPg } from '@prisma/adapter-pg';
 @Injectable()
 export class PrismaService extends PrismaClient {
     constructor() {
-        const databaseUrl = process.env.DATABASE_URL;
-        console.log(databaseUrl)
+        const adapter = new PrismaPg({
+            host: process.env.DATABASE_HOST,
+            port: Number(process.env.DATABASE_PORT),
+            user: process.env.DATABASE_USER,
+            password: process.env.DATABASE_PASSWORD,
+            database: process.env.DATABASE_NAME,
+        });
 
-        if (!databaseUrl) {
-            throw new Error('DATABASE_URL is not defined');
-        }
-        const adapter = new PrismaPg({ url: databaseUrl });
         super({ adapter });
     }
 }
