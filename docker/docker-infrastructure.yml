@@ -20,6 +20,15 @@ services:
     networks:
       - glonass_cluster
 
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "${REDIS_PORT}:6379"
+    restart: unless-stopped
+    networks:
+      - glonass_cluster
+
   adminer:
     container_name: adminer
     image: adminer:latest

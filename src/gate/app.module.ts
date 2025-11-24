@@ -5,12 +5,19 @@ import { PostModule } from './post/post.module';
 import { S3Module } from './s3/s3.module';
 import { PrismaModule } from "@integrations";
 import {ConfigModule} from "@nestjs/config";
+import {BullModule} from "@nestjs/bull";
 
 @Module({
 
   imports: [
       ConfigModule.forRoot({
         isGlobal: true,
+      }),
+      BullModule.forRoot({
+          redis: {host: 'localhost', port: 6379},
+      }),
+      BullModule.registerQueue({
+          name: 'mail'
       }),
       UserModule,
       AuthModule,

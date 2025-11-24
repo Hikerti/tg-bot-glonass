@@ -16,8 +16,8 @@ export class PostDTO {
     interval: string;
 
     @IsArray()
-    @IsString({ each: true })
-    dates: string[];
+    @IsString()
+    date: string;
 
     @IsArray()
     @IsString({ each: true })
@@ -35,7 +35,7 @@ export class PostDTO {
             type: model.type,
             text: model.text,
             interval: model.interval,
-            dates: model.dates,
+            date: model.date,
             media: model.media,
             active: model.active,
             createdAt: model.created_at.toISOString()

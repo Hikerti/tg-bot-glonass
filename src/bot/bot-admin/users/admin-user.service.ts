@@ -2,15 +2,14 @@ import {Action, Command, Ctx, Update} from "nestjs-telegraf";
 import {ConfigService} from "@nestjs/config";
 import axios from "axios";
 import {UserDTO} from "@domains";
-import {Markup} from "telegraf";
+import {Markup, Scenes} from "telegraf";
+import {PaginationType} from "@shared";
 
 @Update()
 export class AdminUserService {
     private currentPage = 1
 
-    constructor(private config: ConfigService) {
-
-    }
+    constructor(private config: ConfigService) {}
 
     @Command('get_users')
     async getUsersList(@Ctx() ctx) {
@@ -19,8 +18,12 @@ export class AdminUserService {
     }
 
     @Command('create_user')
-    async createUser(@Ctx() ctx) {
-
+    async createUser(@Ctx() ctx: Scenes.WizardContext) {
+        if (!ctx.scene) {
+            console.error('Scene not found! Wizard not registered?');
+            return;
+        }
+        await ctx.scene.enter('create-user-wizard');
     }
 
     @Action('next_users')
@@ -36,6 +39,8 @@ export class AdminUserService {
     }
 
     private async sendUsersPage(ctx, page: number) {
+        await ctx.deleteMessage()
+
         const limit = 10;
         try {
             const response = await axios.get(`${this.config.get<string>('GATE_URL')}/users`, {
@@ -43,7 +48,7 @@ export class AdminUserService {
                 params: { page, limit },
             });
 
-            const data = response.data;
+            const data: PaginationType<UserDTO> = response.data;
 
             const message = data.items
                 .map((user: UserDTO, index: number) =>
@@ -51,11 +56,20 @@ export class AdminUserService {
                 )
                 .join('\n');
 
-            await ctx.reply(`Всего пользователей: ${data.total}\n\n${message}`,
-                Markup.inlineKeyboard([
-                    [Markup.button.callback('⬅️ Назад', 'prev_users'), Markup.button.callback('Вперёд ➡️', 'next_users')]
-                ])
-            );
+            if (!data.isLast) {
+                await ctx.reply(`Всего пользователей: ${data.total}\n\n${message}`,
+                    Markup.inlineKeyboard([
+                        [Markup.button.callback('⬅️ Назад', 'prev_users'), Markup.button.callback('Вперёд ➡️', 'next_users')]
+                    ])
+                );
+            } else {
+                await ctx.reply(`Всего пользователей: ${data.total}\n\n${message}`,
+                    Markup.inlineKeyboard([
+                        [Markup.button.callback('⬅️ Назад', 'prev_users')]
+                    ])
+                );
+            }
+
         } catch (e) {
             console.error('Ошибка при получении пользователей:', e.response?.data || e.message);
             await ctx.reply('Не удалось загрузить список пользователей.');

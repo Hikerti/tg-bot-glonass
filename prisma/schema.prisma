@@ -23,7 +23,7 @@ model Post {
   type      PostType
   text      String
   interval  String
-  dates     String[]
+  date     String
   media     String[] @default([])
   active    Boolean
   created_at DateTime @default(now())

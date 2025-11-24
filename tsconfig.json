@@ -35,6 +35,9 @@
       "@shared": [
         "libs/shared/src"
       ],
+      "@systems": [
+        "libs/systems/src"
+      ]
     }
   },
 }

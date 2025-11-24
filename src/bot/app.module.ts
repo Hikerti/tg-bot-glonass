@@ -3,6 +3,7 @@ import { TelegrafModule } from "nestjs-telegraf";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { AdminBotModule } from "./bot-admin";
 import { ClientBotModule } from "./bot-client";
+import {session} from "telegraf";
 
 @Module({
     imports: [
@@ -15,6 +16,7 @@ import { ClientBotModule } from "./bot-client";
             useFactory: (config: ConfigService) => ({
                 token: config.get('CLIENT_BOT_TOKEN')!,
                 include: [ClientBotModule],
+                middlewares: [session()],
             }),
         }),
 
@@ -25,11 +27,9 @@ import { ClientBotModule } from "./bot-client";
             useFactory: (config: ConfigService) => ({
                 token: config.get('ADMIN_BOT_TOKEN')!,
                 include: [AdminBotModule],
+                middlewares: [session()],
             }),
         }),
-
-        ClientBotModule,
-        AdminBotModule,
     ],
 })
 export class AppModule {}
