@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import {PostRepository} from "./post.repository";
 import {PostDTO} from "@domains";
+import {PostType} from "@prisma/client";
+import {PaginationType} from "@shared";
 
 @Injectable()
 export class PostService {
@@ -10,8 +12,8 @@ export class PostService {
         return await this.postRepository.findById(id);
     }
 
-    async getListUsers(page: number, limit: number): Promise<{ items: PostDTO[], total: number, page: number, limit: number }> {
-        return await this.postRepository.getList(page, limit)
+    async getListUsers(page: number, limit: number, type: PostType): Promise<PaginationType<PostDTO>> {
+        return await this.postRepository.getList(page, limit, type)
     }
 
     async create(dto: PostDTO.Create): Promise<PostDTO> {

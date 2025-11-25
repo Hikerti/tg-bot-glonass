@@ -7,7 +7,9 @@ export class AdminGeneralUpdateService implements OnModuleInit {
     constructor(
         @InjectBot('adminBot')
         private readonly adminBot: Telegraf,
-    ) {}
+    ) {
+        console.log("AdminGeneralUpdateService loaded");
+    }
 
     async onModuleInit() {
         const adminCommands = [
@@ -15,9 +17,8 @@ export class AdminGeneralUpdateService implements OnModuleInit {
             { command: 'help', description: 'Список всех команд' },
             { command: 'get_users', description: 'Получение списка всех пользователей' },
             { command: 'create_user', description: 'Добавить пользователя для рассылки' },
-            { command: 'create_letter', description: 'Создание контента для рассылки на почту' },
+            { command: 'create_post', description: 'Создание контента для рассылки' },
             { command: 'get_posts_list', description: 'Получение списка постов для рассылки на почту' },
-            { command: 'create_tg_post', description: 'Создание контента для рассылки в телеграмм' },
             { command: 'get_posts_tg', description: 'Получение списка постов для рассылки в телеграмм' },
             { command: 'get_excel_table', description: 'Получение базы пользователей в виде excel' },
         ];

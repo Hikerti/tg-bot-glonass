@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import {UserRepository} from "./user.repository";
 import {UserDTO} from "@domains";
+import {PaginationType} from "@shared";
 
 @Injectable()
 export class UserService {
     constructor(private readonly userRepository: UserRepository) {}
 
-    async getListUsers(page: number, limit: number): Promise<{ items: UserDTO[], total: number, page: number, limit: number }> {
+    async getListUsers(page: number, limit: number): Promise<PaginationType<UserDTO>> {
         return await this.userRepository.getList(page, limit)
     }
 

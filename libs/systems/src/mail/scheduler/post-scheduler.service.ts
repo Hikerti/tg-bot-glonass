@@ -1,12 +1,13 @@
 import {Injectable, OnModuleInit} from "@nestjs/common";
 import {InjectQueue} from "@nestjs/bull";
 import {PostDTO} from "@domains";
-import {parseInterval} from "../../../../shared/src/utils/parseInterval";
-import {Queue} from "bull";
+import {parseInterval} from "@shared";
+import type {Queue} from "bull";
+import {PrismaService} from "@integrations";
 
 @Injectable()
 export class PostScheduler implements OnModuleInit {
-    constructor(@InjectQueue('mail') private mailQueue: Queue) {}
+    constructor(@InjectQueue('mail') private mailQueue: Queue, private readonly prisma: PrismaService) {}
 
     onModuleInit() {
         this.scheduleAllPosts();
@@ -23,23 +24,28 @@ export class PostScheduler implements OnModuleInit {
     }
 
     async schedulePost(post: PostDTO) {
-        const intervalMs = parseInterval(post.interval)
+        try {
+            const intervalMs = parseInterval(post.interval)
+            const users = this.prisma.user.findMany({where: {role: 'client'}})
 
-        this.mailQueue.add(
-            {
-                users: [],
-                text: post.text,
-                media: post.media,
-                date: post.date
-            },
-            {
-                repeat: {
-                    every: intervalMs
+            this.mailQueue.add(
+                {
+                    users,
+                    text: post.text,
+                    media: post.media,
+                    date: post.date
                 },
-                jobId: post.id,
-                removeOnComplete: true,
-                removeOnFail: true,
-            }
-        )
+                {
+                    repeat: {
+                        every: intervalMs
+                    },
+                    jobId: post.id,
+                    removeOnComplete: true,
+                    removeOnFail: true,
+                }
+            )
+        } catch (e) {
+            console.error(e)
+        }
     }
 }

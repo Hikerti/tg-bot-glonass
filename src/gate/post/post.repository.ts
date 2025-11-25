@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "@integrations";
-import {PostDTO, UserDTO} from "@domains";
+import {PostDTO} from "@domains";
 import {PaginationType} from "@shared";
+import {PostType} from "@prisma/client";
 
 @Injectable()
 export class PostRepository {
@@ -13,7 +14,7 @@ export class PostRepository {
                 type: postData.type,
                 text: postData.text,
                 interval: postData.interval,
-                dates: postData.dates,
+                date: postData.date,
                 media: postData.media,
                 active: postData.active,
             },
@@ -36,7 +37,7 @@ export class PostRepository {
                 type: postData.type,
                 text: postData.text,
                 interval: postData.interval,
-                dates: postData.dates,
+                date: postData.date,
                 media: postData.media,
                 active: postData.active,
             },
@@ -51,16 +52,17 @@ export class PostRepository {
         return PostDTO.fromModel(post);
     }
 
-    async getList(page: number = 1, limit: number = 10): Promise<PaginationType<PostDTO>> {
+    async getList(page: number = 1, limit: number = 10, type: PostType): Promise<PaginationType<PostDTO>> {
         const skip = (page - 1) * limit;
 
         const [items, total] = await this.prisma.$transaction([
             this.prisma.post.findMany({
+                where: {type},
                 skip,
                 take: limit,
                 orderBy: { created_at: 'desc' },
             }),
-            this.prisma.post.count(),
+            this.prisma.post.count({where: {type}}),
         ]);
 
         const isLast = (page * limit) >= total;

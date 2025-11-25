@@ -76,12 +76,10 @@ export class AdminUsersWizardService {
     async step4(@Ctx() ctx: Scenes.WizardContext) {
         this.init(ctx);
 
-        // Если пользователь нажал кнопку "Пропустить"
         if (this.callbackQuery?.data === 'skip_tg_id') {
             this.state.tg_id = null;
             await ctx.answerCbQuery();
         }
-        // Если пользователь ввёл tgId вручную
         else if (this.message?.text) {
             this.state.tg_id = this.message.text.trim();
         }

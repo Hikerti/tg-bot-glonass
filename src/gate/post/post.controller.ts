@@ -1,6 +1,7 @@
 import {Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query} from '@nestjs/common';
 import {PostService} from "./post.service";
 import {PostDTO} from "@domains";
+import {PostType} from "@prisma/client";
 
 @Controller('posts')
 export class PostController {
@@ -14,9 +15,10 @@ export class PostController {
     @Get()
     async getList(
         @Query('page', ParseIntPipe) page = 1,
-        @Query('limit', ParseIntPipe) limit = 10
+        @Query('limit', ParseIntPipe) limit = 10,
+        @Query('type') type: PostType,
     ): Promise<{ items: PostDTO[]; total: number; page: number; limit: number }> {
-        return this.postService.getListUsers(page, limit);
+        return this.postService.getListUsers(page, limit, type);
     }
 
     @Post()

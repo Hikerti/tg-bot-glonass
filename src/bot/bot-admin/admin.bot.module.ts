@@ -1,27 +1,42 @@
-import { Module } from "@nestjs/common";
-import { ConfigModule } from "@nestjs/config";
-import { AdminGeneralUpdateService } from "./updates";
-import { AdminUserService, AdminUsersWizardService } from "./users";
-import { AdminPostsService } from "./posts";
-import { AdminExcelService } from "./excel";
+import {ConfigModule, ConfigService} from "@nestjs/config";
+import {Module} from "@nestjs/common";
+import {AdminGeneralUpdateService} from "./updates";
+import {AdminPostsService, AdminPostsWizardService} from "./posts";
+import {AdminUserService, AdminUsersWizardService} from "./users";
+import {AdminExcelService} from "./excel";
+import {session} from "telegraf";
+import {TelegrafModule} from "nestjs-telegraf";
 
 @Module({
     imports: [
         ConfigModule,
+        TelegrafModule.forRootAsync({
+            botName: 'adminBot',
+            imports: [ConfigModule],
+            inject: [ConfigService],
+            useFactory: (config: ConfigService) => ({
+                token: config.get('ADMIN_BOT_TOKEN')!,
+                include: [
+                    AdminGeneralUpdateService,
+                    AdminPostsWizardService,
+                    AdminUsersWizardService,
+                ],
+                middlewares: [session()],
+            }),
+        }),
     ],
     providers: [
         AdminGeneralUpdateService,
-        AdminUserService,
+        AdminPostsWizardService,
+        AdminUsersWizardService,
         AdminPostsService,
+        AdminUserService,
         AdminExcelService,
-        AdminUsersWizardService
     ],
     exports: [
         AdminGeneralUpdateService,
-        AdminUserService,
-        AdminPostsService,
-        AdminExcelService,
-        AdminUsersWizardService
-    ],
+        AdminPostsWizardService,
+        AdminUsersWizardService,
+    ]
 })
 export class AdminBotModule {}

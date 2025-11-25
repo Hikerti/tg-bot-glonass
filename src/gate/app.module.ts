@@ -6,6 +6,7 @@ import { S3Module } from './s3/s3.module';
 import { PrismaModule } from "@integrations";
 import {ConfigModule} from "@nestjs/config";
 import {BullModule} from "@nestjs/bull";
+import {EmailModule} from "@systems";
 
 @Module({
 
@@ -16,14 +17,15 @@ import {BullModule} from "@nestjs/bull";
       BullModule.forRoot({
           redis: {host: 'localhost', port: 6379},
       }),
-      BullModule.registerQueue({
-          name: 'mail'
-      }),
       UserModule,
       AuthModule,
       PostModule,
       S3Module,
-      PrismaModule
+
+      // intergation
+      PrismaModule,
+      // system
+      EmailModule
   ],
 })
 export class AppModule {}

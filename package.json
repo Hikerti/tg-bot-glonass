@@ -26,7 +26,9 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.936.0",
+    "-": "^0.0.1",
+    "@aws-sdk/client-s3": "^3.939.0",
+    "@aws-sdk/s3-request-presigner": "^3.939.0",
     "@nestjs/bull": "^11.0.4",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
@@ -35,6 +37,7 @@
     "@nestjs/platform-express": "^11.1.9",
     "@prisma/adapter-pg": "^7.0.0",
     "@prisma/client": "^7.0.0",
+    "@types/multer": "^2.0.0",
     "@types/nodemailer": "^7.0.4",
     "axios": "^1.13.2",
     "bull": "^4.16.5",
@@ -43,6 +46,7 @@
     "dotenv": "^17.2.3",
     "ioredis": "^5.8.2",
     "multer": "^2.0.2",
+    "multer-s3": "^3.0.1",
     "nestjs-telegraf": "^2.9.1",
     "nodemailer": "^7.0.10",
     "prisma": "^7.0.0",
