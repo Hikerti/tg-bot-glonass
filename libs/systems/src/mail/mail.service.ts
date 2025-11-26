@@ -23,7 +23,7 @@ export class MailService {
         try {
             const {to, text, attachments = [], subject} = mailData
             return this.transporter.sendMail({
-                from: this.config.get<string>('MAIL_PASSWORD'),
+                from: this.config.get<string>('MAIL_NAME'),
                 to,
                 subject,
                 text,

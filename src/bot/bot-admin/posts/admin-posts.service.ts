@@ -32,6 +32,7 @@ export class AdminPostsService {
             await ctx.replyWithMediaGroup(mediaGroup);
 
             await ctx.reply(data.items[0].text, Markup.inlineKeyboard([
+                [Markup.button.callback('Изменить содержимое', 'edit_post')],
                 [Markup.button.callback('⬅️ Назад', 'prev_users')],
                 !data.isLast ? [Markup.button.callback('Вперёд ➡️', 'next_post')] : [],
             ]));
@@ -41,11 +42,17 @@ export class AdminPostsService {
         }
     }
 
+    @Action('edit_post')
+    async editPost(@Ctx() ctx: Context) {
+        await ctx.scene.enter('update-post-wizard');
+    }
+
     @Action('next_post')
     async nextPost(@Ctx() ctx: Context) {
         this.page++;
         await this.sendPosts(ctx, this.page, 'mail')
     }
+    
 
     @Action('prev_post')
     async prevPost(@Ctx() ctx: Context) {
@@ -83,6 +90,6 @@ export class AdminPostsService {
             console.error('Scene not found! Wizard not registered?');
             return;
         }
-        await ctx.scene.enter('create-user-wizard');
+        await ctx.scene.enter('create-post-wizard');
     }
 }
