@@ -1,5 +1,5 @@
-import {Wizard, WizardStep, Ctx} from 'nestjs-telegraf';
-import { Scenes, Markup } from 'telegraf';
+import {Wizard, WizardStep, Ctx, InjectBot} from 'nestjs-telegraf';
+import {Scenes, Markup, Telegraf, Context} from 'telegraf';
 import axios from 'axios';
 import { ConfigService } from '@nestjs/config';
 import { UserDTO } from '@domains';
@@ -19,7 +19,7 @@ export class AdminUsersWizardService {
     private callbackQuery?: CallbackQuery.DataQuery;
     private state!: CreateUserWizardState;
 
-    constructor(private readonly config: ConfigService) {}
+    constructor(private readonly config: ConfigService, @InjectBot('adminBot') private readonly bot: Telegraf<Context>) {}
 
     private init(ctx: Scenes.WizardContext) {
         this.message = ctx.message as Message.TextMessage;

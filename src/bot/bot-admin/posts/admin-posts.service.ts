@@ -1,16 +1,16 @@
-import {Action, Command, Ctx, Update} from "nestjs-telegraf";
+import {Action, Command, Ctx, InjectBot, Update} from "nestjs-telegraf";
 import {ConfigService} from "@nestjs/config";
 import axios from "axios";
 import {PaginationType} from "@shared";
 import {PostDTO} from "@domains";
-import {Context, Markup, Scenes} from "telegraf";
+import {Context, Markup, Scenes, Telegraf} from "telegraf";
 import {PostType} from "@prisma/client";
 import {InputMediaPhoto} from "telegraf/types";
 
 @Update()
 export class AdminPostsService {
     private page = 1
-    constructor(private config: ConfigService) {}
+    constructor(private config: ConfigService, @InjectBot('adminBot') private readonly bot: Telegraf<Context>) {}
 
     private async sendPosts(ctx, page: number, typePost: PostType) {
         ctx.deleteMessage()
@@ -36,6 +36,8 @@ export class AdminPostsService {
                 [Markup.button.callback('⬅️ Назад', 'prev_users')],
                 !data.isLast ? [Markup.button.callback('Вперёд ➡️', 'next_post')] : [],
             ]));
+
+            ctx.session.post = data.items[0];
         } catch (e) {
             ctx.reply('Пост не загрузился')
             console.error(e);
@@ -43,8 +45,10 @@ export class AdminPostsService {
     }
 
     @Action('edit_post')
-    async editPost(@Ctx() ctx: Context) {
-        ctx.session.post = data.items[0];
+    async editPost(@Ctx() ctx) {
+        if (!ctx.session.post) {
+            return ctx.reply("Пост не найден в сессии");
+        }
         await ctx.scene.enter("update-post-wizard");
     }
 

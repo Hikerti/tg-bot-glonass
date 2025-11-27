@@ -1,15 +1,13 @@
-import {Command, Ctx, InjectBot, Start, Update} from "nestjs-telegraf";
-import {Telegraf} from "telegraf";
-import {OnModuleInit} from "@nestjs/common";
+import { Command, Ctx, InjectBot, Start, Update } from "nestjs-telegraf";
+import { Telegraf, Context } from "telegraf";
+import { OnModuleInit } from "@nestjs/common";
 
 @Update()
 export class AdminGeneralUpdateService implements OnModuleInit {
     constructor(
         @InjectBot('adminBot')
-        private readonly adminBot: Telegraf,
-    ) {
-        console.log("AdminGeneralUpdateService loaded");
-    }
+        private readonly adminBot: Telegraf<Context>,
+    ) {}
 
     async onModuleInit() {
         const adminCommands = [
@@ -22,7 +20,6 @@ export class AdminGeneralUpdateService implements OnModuleInit {
             { command: 'get_posts_tg', description: 'Получение списка постов для рассылки в телеграмм' },
             { command: 'get_excel_table', description: 'Получение базы пользователей в виде excel' },
         ];
-
         try {
             await this.adminBot.telegram.setMyCommands(adminCommands);
             console.log('Admin bot: Меню команд успешно установлено.');
@@ -32,20 +29,24 @@ export class AdminGeneralUpdateService implements OnModuleInit {
     }
 
     @Start()
-    async onStart(@Ctx() ctx) {
-        if (ctx.botInfo.username !== this.adminBot.botInfo?.username) return;
+    async onStart(@Ctx() ctx: Context) {
+        try {
+            await ctx.deleteMessage();
+        } catch (e) {
+            console.log('Не удалось удалить сообщение (это нормально):', e.message);
+        }
 
-        await ctx.deleteMessage();
-
-        ctx.reply('Добро пожаловать в админ панель Glonass-bot.\n' +
-            'Если хочешь узнат что я умею, напиши /help');
+        await ctx.reply('Добро пожаловать в админ панель Glonass-bot.\n' +
+            'Если хочешь узнать что я умею, напиши /help');
     }
 
     @Command('help')
-    async help(@Ctx() ctx) {
-        await ctx.deleteMessage();
+    async help(@Ctx() ctx: Context) {
+        try {
+            await ctx.deleteMessage();
+        } catch (e) {}
 
-        ctx.reply(
+        await ctx.reply(
             'Доступные команды:\n' +
             '/userList - показать всех пользователей\n' +
             '/createPost - отправить сообщение всем\n' +

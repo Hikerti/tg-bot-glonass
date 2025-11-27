@@ -1,9 +1,21 @@
-import { Injectable } from '@nestjs/common';
+import {Injectable, OnModuleInit} from '@nestjs/common';
 import {ConfigService} from "@nestjs/config";
-import {DeleteObjectCommand, PutObjectCommand, S3Client} from "@aws-sdk/client-s3";
+import {
+    CreateBucketCommand,
+    DeleteObjectCommand,
+    HeadBucketCommand,
+    PutObjectCommand,
+    S3Client
+} from "@aws-sdk/client-s3";
+
+interface S3UploadData {
+    buffer: Buffer;
+    originalname: string;
+    mimetype: string;
+}
 
 @Injectable()
-export class S3Service {
+export class S3Service implements OnModuleInit {
     private s3: S3Client;
     private bucket: string;
 
@@ -21,7 +33,11 @@ export class S3Service {
         this.bucket = this.config.getOrThrow('S3_BUCKET')
     }
 
-    async uploadFile(file: Express.Multer.File) {
+    async onModuleInit() {
+        await this.ensureBucketExists();
+    }
+
+    async uploadFile(file: S3UploadData) {
         const fileName = `${Date.now()}-${file.originalname}`;
 
         try {
@@ -31,6 +47,7 @@ export class S3Service {
                     Key: fileName,
                     Body: file.buffer,
                     ContentType: file.mimetype,
+                    ACL: 'public-read',
                 }),
             )
 
@@ -55,6 +72,22 @@ export class S3Service {
         } catch (e) {
             console.error('❌ S3 Deleted Error:', e);
             throw new Error('Failed to deleted file to storage');
+        }
+    }
+
+    async ensureBucketExists() {
+        try {
+            await this.s3.send(new HeadBucketCommand({Bucket: this.bucket}))
+            console.log(`✅ S3 Bucket "${this.bucket}" already exists.`);
+        } catch (error) {
+            if (error['$metadata']?.httpStatusCode === 404 || error.name === 'NotFound') {
+                console.log(`⏳ S3 Bucket "${this.bucket}" not found. Creating...`);
+                await this.s3.send(new CreateBucketCommand({ Bucket: this.bucket }));
+                console.log(`✅ S3 Bucket "${this.bucket}" created successfully.`);
+            } else {
+                console.error(`❌ S3 Bucket check failed:`, error);
+                throw new Error('Failed to initialize S3 connection.');
+            }
         }
     }
 }

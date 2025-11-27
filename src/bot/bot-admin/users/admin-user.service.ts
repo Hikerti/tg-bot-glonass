@@ -1,15 +1,15 @@
-import {Action, Command, Ctx, Update} from "nestjs-telegraf";
+import {Action, Command, Ctx, InjectBot, Update} from "nestjs-telegraf";
 import {ConfigService} from "@nestjs/config";
 import axios from "axios";
 import {UserDTO} from "@domains";
-import {Markup, Scenes} from "telegraf";
+import {Context, Markup, Scenes, Telegraf} from "telegraf";
 import {PaginationType} from "@shared";
 
 @Update()
 export class AdminUserService {
     private currentPage = 1
 
-    constructor(private config: ConfigService) {}
+    constructor(private config: ConfigService, @InjectBot('adminBot') private readonly bot: Telegraf<Context>) {}
 
     @Command('get_users')
     async getUsersList(@Ctx() ctx) {
