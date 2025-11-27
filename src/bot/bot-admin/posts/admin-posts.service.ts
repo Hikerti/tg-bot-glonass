@@ -44,7 +44,8 @@ export class AdminPostsService {
 
     @Action('edit_post')
     async editPost(@Ctx() ctx: Context) {
-        await ctx.scene.enter('update-post-wizard');
+        ctx.session.post = data.items[0];
+        await ctx.scene.enter("update-post-wizard");
     }
 
     @Action('next_post')
