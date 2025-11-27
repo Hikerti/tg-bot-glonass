@@ -1,4 +1,4 @@
-import {Controller, Param, Post} from '@nestjs/common';
+import {Controller, Delete, Param, Post} from '@nestjs/common';
 import {AuthService} from "./auth.service";
 import {UserDTO} from "@domains";
 
@@ -12,5 +12,12 @@ export class AuthController {
         @Param('tgId') tgId: string,
     ): Promise<UserDTO> {
         return await this.authService.loginTg(tgId)
+    }
+
+    @Delete('/logout/tg/:tgId')
+    async logoutTg(
+        @Param('tgId') tgId: string,
+    ): Promise<UserDTO> {
+        return await this.authService.logoutTg(tgId)
     }
 }

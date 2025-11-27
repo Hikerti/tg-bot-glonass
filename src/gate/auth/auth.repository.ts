@@ -32,4 +32,18 @@ export class AuthRepository {
 
         return UserDTO.fromModel(user)
     }
+
+    async deleteUserByTgId(tgId: string): Promise<UserDTO> {
+        const user = await this.prisma.user.delete({
+            where: {
+                tg_id: tgId
+            }
+        })
+
+        if (!user) {
+            throw new NotFoundException(`User with tgId ${tgId} not found`)
+        }
+
+        return UserDTO.fromModel(user)
+    }
 }
