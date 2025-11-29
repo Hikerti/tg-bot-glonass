@@ -2,8 +2,10 @@ import { Module } from "@nestjs/common";
 import { TelegrafModule } from "nestjs-telegraf";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { AdminBotModule } from "./bot-admin";
-import { ClientBotModule } from "./bot-client";
+import {ClientBotModule} from "./bot-client";
 import {session} from "telegraf";
+
+
 @Module({
     imports: [
         ConfigModule.forRoot({ envFilePath: 'envs/bot/bot.env', isGlobal: true }),
@@ -14,7 +16,9 @@ import {session} from "telegraf";
             useFactory: (config: ConfigService) => ({
                 token: config.get('CLIENT_BOT_TOKEN')!,
                 include: [ClientBotModule],
-                middlewares: [session()],
+                middlewares: [
+                    session(),
+                ],
             }),
         }),
         TelegrafModule.forRootAsync({

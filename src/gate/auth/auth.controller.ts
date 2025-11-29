@@ -1,4 +1,4 @@
-import {Controller, Delete, Param, Post} from '@nestjs/common';
+import {Controller, Delete, Get, Param} from '@nestjs/common';
 import {AuthService} from "./auth.service";
 import {UserDTO} from "@domains";
 
@@ -7,7 +7,7 @@ export class AuthController {
     constructor(private readonly authService: AuthService) {
     }
 
-    @Post('/login/tg/:tgId')
+    @Get('/login/tg/:tgId')
     async loginTg(
         @Param('tgId') tgId: string,
     ): Promise<UserDTO> {

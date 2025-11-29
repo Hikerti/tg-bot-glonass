@@ -1,11 +1,11 @@
-import {Ctx, InjectBot, Wizard, WizardStep} from "nestjs-telegraf";
+import {Ctx, InjectBot, On, Wizard, WizardStep} from "nestjs-telegraf";
 import { Message } from "telegraf/types";
 import {ConfigService} from "@nestjs/config";
 import {Context, Scenes, Telegraf} from "telegraf";
 import axios from "axios";
 import {UserDTO} from "@domains";
 
-interface WizardState extends Scenes.WizardSessionData {
+export interface AddEmailWizardState extends Scenes.WizardSessionData {
     id: string;
     currentEmail?: string;
 }
@@ -17,29 +17,27 @@ export class ClientAddEmailWizardService {
         private readonly config: ConfigService,
         @InjectBot('clientBot') private readonly clientBot: Telegraf<Context>,
     ) {}
-
     @WizardStep(1)
-    async step1(@Ctx() ctx: Scenes.WizardContext<WizardState>) {
-        const state = ctx.scene.session as WizardState;
+    async step1(@Ctx() ctx: Scenes.WizardContext<AddEmailWizardState>) {
+        const state = ctx.scene.session as AddEmailWizardState;
         const currentEmail = state.currentEmail;
 
-        let messageText = '✉️ **Добавление или изменение Email**\n\n';
+        let messageText = '✉️ Добавление или изменение Email\n\n';
 
         if (currentEmail) {
-            messageText += `Ваш текущий email: **${currentEmail}**.\n`;
+            messageText += `Ваш текущий email: ${currentEmail}.\n`;
             messageText += 'Введите новую почту ниже, если хотите ее изменить.';
         } else {
             messageText += 'Пожалуйста, введите свой email, чтобы получать рассылку на почту.';
         }
 
-        await ctx.reply(messageText, { parse_mode: 'Markdown' });
+        await ctx.reply(messageText);
         return ctx.wizard.next();
     }
-
     @WizardStep(2)
-    async step2(@Ctx() ctx: Scenes.WizardContext<WizardState>) {
+    async step2(@Ctx() ctx: Scenes.WizardContext<AddEmailWizardState>) {
         const message = ctx.message as Message.TextMessage;
-        const state = ctx.scene.session as WizardState;
+        const state = ctx.scene.session as AddEmailWizardState;
 
         if (!message || !('text' in message)) {
             await ctx.reply('Это не похоже на email. Пожалуйста, введите корректный адрес электронной почты.');
@@ -57,12 +55,10 @@ export class ClientAddEmailWizardService {
         try {
             const id = state.id;
             const response = await axios.put(`${this.config.get<string>('GATE_URL')}/users/${id}`, {
-                data: {
-                    email: mail,
-                }
+                email: mail,
             });
-            const data: UserDTO = response.data.data;
-            await ctx.reply(`🎉 **Поздравляю!** Ваш email для рассылки успешно изменен на **${data.email}**.`);
+            const data: UserDTO = response.data;
+            await ctx.reply(`🎉 Поздравляю! Ваш email для рассылки успешно изменен на ${data.email}.`);
             return ctx.scene.leave();
         } catch (e) {
             console.error(e);

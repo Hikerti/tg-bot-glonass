@@ -52,7 +52,7 @@ export class S3Service implements OnModuleInit {
             )
 
             return {
-                url: `${this.config.get('S3_ENDPOINT')}/${this.bucket}/${fileName}`,
+                url: `http://glonass_media/${this.bucket}/${fileName}`,
                 key: fileName,
             };
         } catch (e) {
@@ -76,18 +76,35 @@ export class S3Service implements OnModuleInit {
     }
 
     async ensureBucketExists() {
+
         try {
             await this.s3.send(new HeadBucketCommand({Bucket: this.bucket}))
             console.log(`✅ S3 Bucket "${this.bucket}" already exists.`);
         } catch (error) {
-            if (error['$metadata']?.httpStatusCode === 404 || error.name === 'NotFound') {
-                console.log(`⏳ S3 Bucket "${this.bucket}" not found. Creating...`);
-                await this.s3.send(new CreateBucketCommand({ Bucket: this.bucket }));
-                console.log(`✅ S3 Bucket "${this.bucket}" created successfully.`);
-            } else {
-                console.error(`❌ S3 Bucket check failed:`, error);
-                throw new Error('Failed to initialize S3 connection.');
-            }
+            console.log(`⏳ Bucket "${this.bucket}" not found. Creating...`);
+            await this.s3.send(new CreateBucketCommand({ Bucket: this.bucket }));
+            console.log(`✅ Bucket "${this.bucket}" created.`);
+
+            const publicPolicy = {
+                Version: "2012-10-17",
+                Statement: [
+                    {
+                        Action: ["s3:GetObject"],
+                        Effect: "Allow",
+                        Principal: "*",
+                        Resource: [`arn:aws:s3:::${this.bucket}/*`],
+                    },
+                ],
+            };
+
+            await this.s3.send(new PutObjectCommand({
+                Bucket: this.bucket,
+                Key: 'policy.json',
+                Body: JSON.stringify(publicPolicy),
+                ContentType: 'application/json',
+            }));
+
+            console.log(`✅ Public policy applied to "${this.bucket}".`);
         }
     }
 }

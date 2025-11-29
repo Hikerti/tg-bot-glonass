@@ -1,7 +1,8 @@
 import {PrismaService} from "@integrations";
 import {UserDTO} from "@domains";
-import {NotFoundException} from "@nestjs/common";
+import {Injectable, NotFoundException} from "@nestjs/common";
 
+@Injectable()
 export class AuthRepository {
     constructor(private readonly prisma: PrismaService) {}
 

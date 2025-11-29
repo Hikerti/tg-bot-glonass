@@ -23,6 +23,11 @@ export class UserRepository {
     }
 
     async update(id: string, userData: UserDTO.Update): Promise<UserDTO> {
+        const existingUser = await this.prisma.user.findUnique({ where: { id } });
+        if (!existingUser) {
+            throw new NotFoundException(`User with id ${id} not found`);
+        }
+
         const user = await this.prisma.user.update({
             where: { id },
             data: {

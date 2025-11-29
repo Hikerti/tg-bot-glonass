@@ -92,7 +92,6 @@ export class AdminPostsService {
     @Command('create_post')
     async createPostTg(@Ctx() ctx: Scenes.WizardContext) {
         if (!ctx.scene) {
-            console.error('Scene not found! Wizard not registered?');
             return;
         }
         await ctx.scene.enter('create-post-wizard');

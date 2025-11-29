@@ -6,6 +6,7 @@ import axios from "axios";
 import {PostDTO} from "@domains";
 import {PostType} from "@prisma/client";
 import {S3Service} from "@infrastract";
+import {AdminGetMedia} from "./admin-get-media";
 
 interface CreatePostWizardState {
     text?: string;
@@ -16,16 +17,18 @@ interface CreatePostWizardState {
 }
 
 @Wizard("create-post-wizard", { botName: "adminBot" })
-export class AdminPostsWizardService {
+export class AdminPostsWizardService extends AdminGetMedia{
     private message?: Message.TextMessage;
     private callbackQuery?: CallbackQuery.DataQuery;
     private state!: CreatePostWizardState;
 
     constructor(
-        private readonly config: ConfigService,
-        @InjectBot('adminBot') private readonly bot: Telegraf<Context>,
-        private readonly s3Service: S3Service,
-    ) {}
+        protected readonly config: ConfigService,
+        @InjectBot('adminBot') protected readonly bot: Telegraf<Context>,
+        protected readonly s3Service: S3Service,
+    ) {
+        super(config, bot, s3Service)
+    }
 
     private init(ctx: Scenes.WizardContext) {
         this.message = ctx.message as Message.TextMessage;
@@ -33,50 +36,6 @@ export class AdminPostsWizardService {
         this.state = ctx.wizard.state as CreatePostWizardState;
 
         if (!this.state.media) this.state.media = [];
-    }
-
-    private extractMediaFileId(msg: Message): string | null {
-        if ("photo" in msg) return msg.photo[msg.photo.length - 1].file_id;
-        if ("video" in msg) return msg.video.file_id;
-        if ("audio" in msg) return msg.audio.file_id;
-        if ("document" in msg) return msg.document.file_id;
-        return null;
-    }
-
-    private getMimeTypeFromMessage(msg: Message): string | null {
-        if ("photo" in msg) return 'image/jpeg';
-        if ("video" in msg) return msg.video.mime_type || 'video/mp4';
-        if ("audio" in msg) return msg.audio.mime_type || 'audio/mpeg';
-        if ("document" in msg) return msg.document.mime_type || 'application/octet-stream';
-        return null;
-    }
-
-    private getFileNameFromMessage(msg: Message): string | null {
-        if ("photo" in msg) return `photo_${msg.message_id}.jpg`;
-        if ("video" in msg) return msg.video.file_name || `video_${msg.message_id}.mp4`;
-        if ("audio" in msg) return msg.audio.file_name || `audio_${msg.message_id}.mp3`;
-        if ("document" in msg) return msg.document.file_name || `document_${msg.message_id}.dat`;
-        return null;
-    }
-
-    private async uploadMediaFromTelegram(msg: Message) {
-        const fileId = this.extractMediaFileId(msg);
-        if (!fileId) return null;
-
-        const tgFile = await this.bot.telegram.getFile(fileId);
-        const filePath = tgFile.file_path as string;
-        if (!filePath) return null;
-
-        const token = this.config.get<string>('ADMIN_BOT_TOKEN');
-        const fileUrl = `https://api.telegram.org/file/bot${token}/${filePath}`;
-
-        const fileResp = await axios.get(fileUrl, { responseType: 'arraybuffer' });
-        const buffer = Buffer.from(fileResp.data);
-
-        const mimeType = this.getMimeTypeFromMessage(msg) || 'application/octet-stream';
-        const originalname = this.getFileNameFromMessage(msg) || `${fileId}`;
-
-        return this.s3Service.uploadFile({ buffer, originalname, mimetype: mimeType });
     }
 
     @Action("cancel_media")
@@ -159,7 +118,7 @@ export class AdminPostsWizardService {
         if (!msg) return;
 
         try {
-            const file= await this.uploadMediaFromTelegram(msg);;
+            const file= await this.uploadMediaFromTelegram(msg);
 
             if (!file || !file.url) {
                 return ctx.reply("Пожалуйста, отправьте медиафайл или нажмите 'Закончить отправление'.");

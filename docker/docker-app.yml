@@ -17,12 +17,16 @@ services:
       context: ..
       dockerfile: ./docker/gate/Dockerfile
     command: ["bun", "dist/apps/gate/main.js"]
+    environment:
+      <<: *common-env
     ports:
       - "${GATE_HTTP_PORT}:${GATE_HTTP_PORT}"
 
     depends_on:
       - postgres
       - redis
+      - minio
+      - nginx
     networks:
       - glonass_cluster
 
@@ -37,5 +41,7 @@ services:
     depends_on:
       - postgres
       - redis
+      - minio
+      - nginx
     networks:
       - glonass_cluster

@@ -41,7 +41,7 @@ services:
 
   minio:
     image: minio/minio
-    container_name: ${S3_HOST}
+    container_name: minio
     environment:
       MINIO_ROOT_USER: ${S3_USER}
       MINIO_ROOT_PASSWORD: ${S3_PASSWORD}
@@ -51,5 +51,17 @@ services:
       - "${S3_UI_PORT}:${S3_UI_PORT}"
     volumes:
       - ../.deploy/data/minio:/data
+    networks:
+      - glonass_cluster
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - minio
     networks:
       - glonass_cluster

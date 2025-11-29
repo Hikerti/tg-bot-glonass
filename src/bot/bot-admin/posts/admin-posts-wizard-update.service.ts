@@ -1,5 +1,5 @@
 import { Wizard, WizardStep, Ctx, Action } from 'nestjs-telegraf';
-import { Scenes, Markup } from 'telegraf';
+import {Scenes, Markup, Context} from 'telegraf';
 import { Telegraf } from 'telegraf';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
@@ -7,6 +7,7 @@ import { InjectBot } from 'nestjs-telegraf';
 import { Message } from "telegraf/types";
 import { PostDTO } from "@domains";
 import {S3Service} from "@infrastract";
+import {AdminGetMedia} from "./admin-get-media";
 
 interface UpdatePostWizardState {
     postId?: string;
@@ -25,12 +26,14 @@ export interface MyContext extends Scenes.WizardContext {
 }
 
 @Wizard('update-post-wizard')
-export class AdminPostsWizardUpdateService {
+export class AdminPostsWizardUpdateService extends AdminGetMedia {
     constructor(
-        private readonly config: ConfigService,
-        @InjectBot() private readonly bot: Telegraf<MyContext>,
-        private readonly s3Service: S3Service,
-    ) {}
+        protected readonly config: ConfigService,
+        @InjectBot('adminBot') protected readonly bot: Telegraf<Context>,
+        protected readonly s3Service: S3Service,
+    ) {
+        super(config, bot, s3Service);
+    }
 
     private state(ctx: MyContext): UpdatePostWizardState {
         const s = ctx.wizard.state as UpdatePostWizardState;
@@ -38,50 +41,6 @@ export class AdminPostsWizardUpdateService {
         s.newMedia ??= [];
         s.action ??= null;
         return s;
-    }
-
-    private extractMediaFileId(msg: Message): string | null {
-        if ("photo" in msg) return msg.photo[msg.photo.length - 1].file_id;
-        if ("video" in msg) return msg.video.file_id;
-        if ("audio" in msg) return msg.audio.file_id;
-        if ("document" in msg) return msg.document.file_id;
-        return null;
-    }
-
-    private getMimeTypeFromMessage(msg: Message): string | null {
-        if ("photo" in msg) return 'image/jpeg';
-        if ("video" in msg) return msg.video.mime_type || 'video/mp4';
-        if ("audio" in msg) return msg.audio.mime_type || 'audio/mpeg';
-        if ("document" in msg) return msg.document.mime_type || 'application/octet-stream';
-        return null;
-    }
-
-    private getFileNameFromMessage(msg: Message): string | null {
-        if ("photo" in msg) return `photo_${msg.message_id}.jpg`;
-        if ("video" in msg) return msg.video.file_name || `video_${msg.message_id}.mp4`;
-        if ("audio" in msg) return msg.audio.file_name || `audio_${msg.message_id}.mp3`;
-        if ("document" in msg) return msg.document.file_name || `document_${msg.message_id}.dat`;
-        return null;
-    }
-
-    private async uploadMediaFromTelegram(msg: Message) {
-        const fileId = this.extractMediaFileId(msg);
-        if (!fileId) return null;
-
-        const tgFile = await this.bot.telegram.getFile(fileId);
-        const filePath = tgFile.file_path as string;
-        if (!filePath) return null;
-
-        const token = this.config.get<string>('ADMIN_BOT_TOKEN');
-        const fileUrl = `https://api.telegram.org/file/bot${token}/${filePath}`;
-
-        const fileResp = await axios.get(fileUrl, { responseType: 'arraybuffer' });
-        const buffer = Buffer.from(fileResp.data);
-
-        const mimeType = this.getMimeTypeFromMessage(msg) || 'application/octet-stream';
-        const originalname = this.getFileNameFromMessage(msg) || `${fileId}`;
-
-        return this.s3Service.uploadFile({ buffer, originalname, mimetype: mimeType });
     }
 
     @WizardStep(1)
