@@ -2,16 +2,10 @@ FROM oven/bun:latest AS deps
 
 WORKDIR /app
 
-RUN apt-get update -y && apt-get install -y openssl
-
 COPY package.json bun.lock* ./
 COPY prisma/ ./prisma
 
-ENV PRISMA_SKIP_POSTINSTALL_GENERATE=true
-RUN bun install --verbose --no-cache --ignore-scripts
-
-COPY node_modules/.prisma/ ./node_modules/.prisma
-
+RUN bun install --verbose --no-cache
 RUN bunx prisma generate
 
 FROM deps AS build
