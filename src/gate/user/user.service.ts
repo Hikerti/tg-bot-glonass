@@ -15,6 +15,10 @@ export class UserService {
         return await this.userRepository.create(dto);
     }
 
+    async createMany(dto: UserDTO.Create[]): Promise<UserDTO[]> {
+        return await this.userRepository.createMany(dto);
+    }
+
     async update(id: string, dto: UserDTO.Update): Promise<UserDTO> {
         return await this.userRepository.update(id, dto);
     }

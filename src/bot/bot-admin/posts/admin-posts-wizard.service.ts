@@ -53,7 +53,7 @@ export class AdminPostsWizardService extends AdminGetMedia{
     async step1(@Ctx() ctx: Scenes.WizardContext) {
         this.init(ctx);
         await ctx.reply("Введите текст для поста:");
-        return ctx.wizard.next();
+        ctx.wizard.next();
     }
 
     @WizardStep(2)
@@ -69,7 +69,7 @@ export class AdminPostsWizardService extends AdminGetMedia{
             "🖼️ **Отправьте первое медиа** (фото, видео, аудио или документ):"
         );
 
-        return ctx.wizard.next();
+        ctx.wizard.next();
     }
 
     @WizardStep(3)
@@ -95,7 +95,7 @@ export class AdminPostsWizardService extends AdminGetMedia{
                 ])
             );
 
-            return ctx.wizard.next();
+            ctx.wizard.next();
 
         } catch (e) {
             console.error('Ошибка загрузки первого медиа:', e);
@@ -149,7 +149,7 @@ export class AdminPostsWizardService extends AdminGetMedia{
             "Введите интервал рассылки (например 1d, 2h, 30m):"
         );
 
-        return ctx.wizard.next();
+        ctx.wizard.next();
     }
 
     @WizardStep(6)
@@ -165,7 +165,7 @@ export class AdminPostsWizardService extends AdminGetMedia{
             "Введите дату окончания рассылки (dd.mm.yyyy):"
         );
 
-        return ctx.wizard.next();
+        ctx.wizard.next();
     }
 
     @WizardStep(7)
@@ -185,7 +185,7 @@ export class AdminPostsWizardService extends AdminGetMedia{
             ])
         );
 
-        return ctx.wizard.next();
+        ctx.wizard.next();
     }
 
     @Action("tg_send")
@@ -215,6 +215,6 @@ export class AdminPostsWizardService extends AdminGetMedia{
 
         await ctx.reply("Пост успешно создан!");
 
-        return ctx.scene.leave();
+        await ctx.scene.leave();
     }
 }

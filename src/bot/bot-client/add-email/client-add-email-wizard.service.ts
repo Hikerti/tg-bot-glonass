@@ -17,6 +17,7 @@ export class ClientAddEmailWizardService {
         private readonly config: ConfigService,
         @InjectBot('clientBot') private readonly clientBot: Telegraf<Context>,
     ) {}
+
     @WizardStep(1)
     async step1(@Ctx() ctx: Scenes.WizardContext<AddEmailWizardState>) {
         const state = ctx.scene.session as AddEmailWizardState;
@@ -32,7 +33,7 @@ export class ClientAddEmailWizardService {
         }
 
         await ctx.reply(messageText);
-        return ctx.wizard.next();
+        ctx.wizard.next();
     }
     @WizardStep(2)
     async step2(@Ctx() ctx: Scenes.WizardContext<AddEmailWizardState>) {
@@ -59,11 +60,11 @@ export class ClientAddEmailWizardService {
             });
             const data: UserDTO = response.data;
             await ctx.reply(`🎉 Поздравляю! Ваш email для рассылки успешно изменен на ${data.email}.`);
-            return ctx.scene.leave();
+            await ctx.scene.leave();
         } catch (e) {
             console.error(e);
             await ctx.reply('Произошла ошибка при сохранении email. Пожалуйста, попробуйте снова или обратитесь в поддержку.');
-            return ctx.scene.leave();
+            await ctx.scene.leave();
         }
     }
 }

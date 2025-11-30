@@ -31,7 +31,7 @@ export class AdminUsersWizardService {
     async step1(@Ctx() ctx: Scenes.WizardContext) {
         this.init(ctx);
         await ctx.reply('Введите ФИО пользователя, которое хотите добавить в базу:');
-        return ctx.wizard.next();
+        ctx.wizard.next();
     }
 
     @WizardStep(2)
@@ -45,7 +45,7 @@ export class AdminUsersWizardService {
 
         this.state.name = text;
         await ctx.reply('Введите email пользователя, которое хотите добавить в базу:');
-        return ctx.wizard.next();
+        ctx.wizard.next();
     }
 
     @WizardStep(3)
@@ -69,7 +69,7 @@ export class AdminUsersWizardService {
             Markup.inlineKeyboard([[Markup.button.callback('Пропустить', 'skip_tg_id')]])
         );
 
-        return ctx.wizard.next();
+        ctx.wizard.next();
     }
 
     @WizardStep(4)
@@ -97,7 +97,7 @@ export class AdminUsersWizardService {
             ])
         );
 
-        return ctx.wizard.next();
+        ctx.wizard.next();
     }
 
     @WizardStep(5)
@@ -128,6 +128,6 @@ export class AdminUsersWizardService {
         }
 
         await ctx.answerCbQuery();
-        return ctx.scene.leave();
+        await ctx.scene.leave();
     }
 }

@@ -21,12 +21,17 @@ export class UserController {
         @Query('page', ParseIntPipe) page = 1,
         @Query('limit', ParseIntPipe) limit = 10
     ): Promise<{ items: UserDTO[]; total: number; page: number; limit: number }> {
-        return this.userService.getListUsers(page, limit);
+        return await this.userService.getListUsers(page, limit);
     }
 
     @Post()
     async create(@Body() dto: UserDTO.Create): Promise<UserDTO> {
-        return this.userService.create(dto);
+        return await this.userService.create(dto);
+    }
+
+    @Post('/bulk')
+    async createMany(@Body() dto: UserDTO.Create[]): Promise<UserDTO[]> {
+        return await this.userService.createMany(dto);
     }
 
     @Put(':id')
@@ -34,11 +39,11 @@ export class UserController {
         @Param('id') id: string,
         @Body() dto: UserDTO.Update
     ): Promise<UserDTO> {
-        return this.userService.update(id, dto);
+        return await this.userService.update(id, dto);
     }
 
     @Delete(':id')
     async delete(@Param('id') id: string): Promise<UserDTO> {
-        return this.userService.delete(id);
+        return await this.userService.delete(id);
     }
 }

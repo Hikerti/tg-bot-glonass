@@ -22,6 +22,28 @@ export class UserRepository {
         return UserDTO.fromModel(user);
     }
 
+    async createMany(users: UserDTO.Create[]): Promise<UserDTO[]> {
+        await this.prisma.user.createMany({
+            data: users.map(u => ({
+                name: u.name,
+                email: u.email ?? null,
+                tg_id: u.tgId ?? null,
+                role: u.role,
+            })),
+            skipDuplicates: true,
+        });
+
+        const emails: string[] = users
+            .map(u => u.email)
+            .filter((email): email is string => !!email);
+
+        const createdUsers = await this.prisma.user.findMany({
+            where: { email: { in: emails } },
+        });
+
+        return createdUsers.map(UserDTO.fromModel);
+    }
+
     async update(id: string, userData: UserDTO.Update): Promise<UserDTO> {
         const existingUser = await this.prisma.user.findUnique({ where: { id } });
         if (!existingUser) {

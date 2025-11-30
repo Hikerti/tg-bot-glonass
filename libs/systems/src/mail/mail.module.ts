@@ -8,7 +8,7 @@ import {BullModule} from "@nestjs/bull";
 @Module({
     imports: [
         ConfigModule.forRoot({
-            envFilePath: ".env/gate/mail.env", isGlobal: true,
+            envFilePath: ".envs/local/gate/mail.env", isGlobal: true,
         }),
         BullModule.registerQueue({
             name: 'mail',

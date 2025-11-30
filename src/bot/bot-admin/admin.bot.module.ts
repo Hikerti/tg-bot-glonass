@@ -3,10 +3,10 @@ import { AdminGeneralUpdateService } from "./updates";
 import { AdminPostsService, AdminPostsWizardService } from "./posts";
 import { AdminUserService, AdminUsersWizardService } from "./users";
 import { AdminExcelService } from "./excel";
-import {S3Module} from "@infrastract";
+import {ExcelModule, S3Module} from "@infrastract";
 
 @Module({
-    imports: [S3Module],
+    imports: [S3Module, ExcelModule],
 
     providers: [
         AdminGeneralUpdateService,

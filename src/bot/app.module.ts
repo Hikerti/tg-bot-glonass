@@ -8,7 +8,7 @@ import {session} from "telegraf";
 
 @Module({
     imports: [
-        ConfigModule.forRoot({ envFilePath: 'envs/bot/bot.env', isGlobal: true }),
+        ConfigModule.forRoot({ envFilePath: 'envs/local/bot/bot.env', isGlobal: true }),
         TelegrafModule.forRootAsync({
             botName: 'clientBot',
             imports: [ClientBotModule],

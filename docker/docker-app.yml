@@ -4,6 +4,29 @@ networks:
   glonass_cluster:
     external: true
 
+x-app: &app
+  restart: unless-stopped
+  volumes:
+    - ./envs:/server/envs:ro
+  deploy:
+    resources:
+      limits:
+        cpus: "1.0"
+        memory: 1.5G
+      reservations:
+        cpus: "0.25"
+        memory: 512M
+  logging:
+    driver: "json-file"
+    options:
+      max-size: "100m"
+      max-file: "3"
+
+
+x-app-build: &app-build
+  context: ..
+  dockerfile: ./docker/gate/Dockerfile
+
 x-common-env: &common-env
   DATABASE_URL: ${DATABASE_URL}
   S3_URL: ${S3_URL}
@@ -12,10 +35,13 @@ x-common-env: &common-env
 
 services:
   gate:
+    <<: *app
     container_name: gate
+    hostname: ${GATE_HTTP_HOST}
     build:
-      context: ..
-      dockerfile: ./docker/gate/Dockerfile
+      <<: *app-build
+      args:
+        SERVICE_NAME: gate
     command: ["bun", "dist/apps/gate/main.js"]
     environment:
       <<: *common-env
@@ -31,10 +57,12 @@ services:
       - glonass_cluster
 
   bot:
+    <<: *app
     container_name: bot
     build:
-      context: ..
-      dockerfile: ./docker/bot/Dockerfile
+      <<: *app-build
+      args:
+        SERVICE_NAME: bot
     command: ["bun", "dist/apps/bot/main.js"]
     environment:
       <<: *common-env
