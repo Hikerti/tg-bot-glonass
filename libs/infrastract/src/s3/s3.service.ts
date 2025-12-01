@@ -5,6 +5,7 @@ import {
     DeleteObjectCommand,
     HeadBucketCommand,
     PutObjectCommand,
+    PutBucketPolicyCommand,
     S3Client
 } from "@aws-sdk/client-s3";
 
@@ -51,8 +52,11 @@ export class S3Service implements OnModuleInit {
                 }),
             )
 
+            const endpointUrl = this.config.getOrThrow('S3_ENDPOINT');
+            const cleanEndpoint = endpointUrl.endsWith('/') ? endpointUrl.slice(0, -1) : endpointUrl;
+
             return {
-                url: `http://glonass_media/${this.bucket}/${fileName}`,
+                url: `${cleanEndpoint}/${this.bucket}/${fileName}`,
                 key: fileName,
             };
         } catch (e) {
@@ -76,35 +80,38 @@ export class S3Service implements OnModuleInit {
     }
 
     async ensureBucketExists() {
+        let bucketExisted = false;
 
         try {
             await this.s3.send(new HeadBucketCommand({Bucket: this.bucket}))
+            bucketExisted = true;
             console.log(`✅ S3 Bucket "${this.bucket}" already exists.`);
         } catch (error) {
             console.log(`⏳ Bucket "${this.bucket}" not found. Creating...`);
             await this.s3.send(new CreateBucketCommand({ Bucket: this.bucket }));
             console.log(`✅ Bucket "${this.bucket}" created.`);
+        }
 
-            const publicPolicy = {
-                Version: "2012-10-17",
-                Statement: [
-                    {
-                        Action: ["s3:GetObject"],
-                        Effect: "Allow",
-                        Principal: "*",
-                        Resource: [`arn:aws:s3:::${this.bucket}/*`],
-                    },
-                ],
-            };
+        const publicPolicy = {
+            Version: "2012-10-17",
+            Statement: [
+                {
+                    Action: ["s3:GetObject"],
+                    Effect: "Allow",
+                    Principal: "*",
+                    Resource: [`arn:aws:s3:::${this.bucket}/*`],
+                },
+            ],
+        };
 
-            await this.s3.send(new PutObjectCommand({
+        try {
+            await this.s3.send(new PutBucketPolicyCommand({
                 Bucket: this.bucket,
-                Key: 'policy.json',
-                Body: JSON.stringify(publicPolicy),
-                ContentType: 'application/json',
+                Policy: JSON.stringify(publicPolicy),
             }));
-
             console.log(`✅ Public policy applied to "${this.bucket}".`);
+        } catch (policyError) {
+            console.error('❌ Failed to apply public policy:', policyError);
         }
     }
 }

@@ -67,9 +67,13 @@ services:
     environment:
       <<: *common-env
     depends_on:
-      - postgres
-      - redis
-      - minio
-      - nginx
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+      nginx:
+        condition: service_started
+      minio:
+        condition: service_healthy
     networks:
       - glonass_cluster

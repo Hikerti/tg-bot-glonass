@@ -12,7 +12,7 @@
     "build:bot": "nest build bot",
     "build:gate": "nest build gate",
     "start:dev:bot": "nest start bot --watch",
-    "start:dev:gate": "nest start gate --watch",
+    "start:dev:gate": "node -r ts-node/register -r tsconfig-paths/register ./node_modules/@nestjs/cli/bin/nest.js start gate --watch",
     "start:prod:bot": "node dist/bot/main.js",
     "start:prod:gate": "node dist/gate/main.js",
     "start:dev": "nest start --watch",
