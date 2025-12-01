@@ -26,7 +26,6 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "-": "^0.0.1",
     "@aws-sdk/client-s3": "^3.939.0",
     "@aws-sdk/s3-request-presigner": "^3.939.0",
     "@nestjs/bull": "^11.0.4",
@@ -35,8 +34,7 @@
     "@nestjs/core": "^11.0.1",
     "@nestjs/mapped-types": "^2.1.0",
     "@nestjs/platform-express": "^11.1.9",
-    "@prisma/adapter-pg": "^7.0.0",
-    "@prisma/client": "^7.0.1",
+    "@nestjs/typeorm": "^11.0.0",
     "@types/multer": "^2.0.0",
     "@types/nodemailer": "^7.0.4",
     "axios": "^1.13.2",
@@ -49,10 +47,11 @@
     "multer-s3": "^3.0.1",
     "nestjs-telegraf": "^2.9.1",
     "nodemailer": "^7.0.10",
-    "prisma": "^7.0.0",
+    "pg": "^8.16.3",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "telegraf": "^4.16.3",
+    "typeorm": "^0.3.27",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
@@ -66,6 +65,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^22.10.7",
     "@types/supertest": "^6.0.2",
+    "chardet": "^2.1.1",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",

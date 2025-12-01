@@ -2,9 +2,9 @@ import {Wizard, WizardStep, Ctx, InjectBot} from 'nestjs-telegraf';
 import {Scenes, Markup, Telegraf, Context} from 'telegraf';
 import axios from 'axios';
 import { ConfigService } from '@nestjs/config';
-import { UserDTO } from '@domains';
+import {UserDTO, UserRole} from '@domains';
 import { CallbackQuery, Message } from "node_modules/telegraf/typings/core/types/typegram";
-import {UserRole} from "@prisma/client";
+
 
 interface CreateUserWizardState {
     name?: string;

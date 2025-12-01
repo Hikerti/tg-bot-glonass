@@ -1,10 +1,9 @@
-import { ConfigService } from "@nestjs/config";
+import {ConfigService} from "@nestjs/config";
 import {Action, Ctx, InjectBot, Wizard, WizardStep} from "nestjs-telegraf";
 import {Context, Markup, Scenes, Telegraf} from "telegraf";
-import { CallbackQuery, Message } from "telegraf/types";
+import {CallbackQuery, Message} from "telegraf/types";
 import axios from "axios";
-import {PostDTO} from "@domains";
-import {PostType} from "@prisma/client";
+import {PostDTO, PostType} from "@domains";
 import {S3Service} from "@infrastract";
 import {AdminGetMedia} from "./admin-get-media";
 
@@ -196,8 +195,8 @@ export class AdminPostsWizardService extends AdminGetMedia{
 
         const action = this.callbackQuery!.data;
 
-        if (action === "tg_send") this.state.type = "tg";
-        if (action === "mail_send") this.state.type = "mail";
+        if (action === "tg_send") this.state.type = PostType.TG;
+        if (action === "mail_send") this.state.type =  PostType.MAIL;
 
         const {text, type, date, interval, media} = this.state;
         if (text && type && date && interval ) {

@@ -1,6 +1,6 @@
 import { IsEmail, IsOptional, IsString } from 'class-validator';
 import { OmitType, PartialType } from '@nestjs/mapped-types';
-import { User, UserRole } from "@prisma/client";
+import {User, UserRole} from "./user.entites";
 
 export class UserDTO {
     @IsString()
@@ -31,10 +31,10 @@ export class UserDTO {
             id: model.id,
             name: model.name,
             email: model.email,
-            tgId: model.tg_id ?? null,
+            tgId: model.tgId ?? null,
             role: model.role,
-            createdAt: model.created_at.toISOString(),
-            updatedAt: model.updated_at.toISOString(),
+            createdAt: model.createdAt.toISOString(),
+            updatedAt: model.updatedAt.toISOString(),
         }
     }
 }

@@ -1,8 +1,8 @@
-import {Update, Ctx, Start, InjectBot, Command, Action, Hears} from 'nestjs-telegraf';
+import {Update, Ctx, Start, InjectBot, Command, Action} from 'nestjs-telegraf';
 import {Markup, Scenes, Telegraf} from 'telegraf';
 import axios from "axios";
 import {ConfigService} from "@nestjs/config";
-import {UserDTO} from "@domains";
+import {UserDTO, UserRole} from "@domains";
 import {Context} from "telegraf";
 import {OnModuleInit} from "@nestjs/common";
 import {AddEmailWizardState} from "./add-email";
@@ -69,7 +69,7 @@ export class ClientService implements OnModuleInit {
             const data: UserDTO.Create = {
                 name,
                 tgId: tgId.toString(),
-                role: 'client'
+                role: UserRole.CLIENT
             }
             const response = await axios.post(`${this.config.get<string>('GATE_URL')}/users`, {
                 ...data

@@ -2,9 +2,8 @@ import {Action, Command, Ctx, InjectBot, Update} from "nestjs-telegraf";
 import {ConfigService} from "@nestjs/config";
 import axios from "axios";
 import {PaginationType} from "@shared";
-import {PostDTO} from "@domains";
+import {PostDTO, PostType} from "@domains";
 import {Context, Markup, Scenes, Telegraf} from "telegraf";
-import {PostType} from "@prisma/client";
 import {InputMediaPhoto} from "telegraf/types";
 
 @Update()
@@ -55,38 +54,38 @@ export class AdminPostsService {
     @Action('next_post')
     async nextPost(@Ctx() ctx: Context) {
         this.page++;
-        await this.sendPosts(ctx, this.page, 'mail')
+        await this.sendPosts(ctx, this.page, PostType.MAIL)
     }
     
 
     @Action('prev_post')
     async prevPost(@Ctx() ctx: Context) {
         if (this.page > 1) this.page--;
-        await this.sendPosts(ctx, this.page, 'mail')
+        await this.sendPosts(ctx, this.page, PostType.MAIL)
     }
 
     @Action('next_tg_post')
     async nextTgPost(@Ctx() ctx: Context) {
         this.page++;
-        await this.sendPosts(ctx, this.page, 'tg')
+        await this.sendPosts(ctx, this.page, PostType.TG)
     }
 
     @Action('prev_tg_post')
     async prevTgPost(@Ctx() ctx: Context) {
         if (this.page > 1) this.page--;
-        await this.sendPosts(ctx, this.page, 'tg')
+        await this.sendPosts(ctx, this.page, PostType.TG)
     }
 
     @Command('get_posts_list')
     async getPostsList(@Ctx() ctx: Context) {
         this.page = 1;
-        await this.sendPosts(ctx, this.page, 'mail')
+        await this.sendPosts(ctx, this.page, PostType.MAIL)
     }
 
     @Command('get_posts_tg')
     async getPostListTg(@Ctx() ctx: Context) {
         this.page = 1;
-        await this.sendPosts(ctx, this.page, 'tg')
+        await this.sendPosts(ctx, this.page, PostType.TG)
     }
 
     @Command('create_post')

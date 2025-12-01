@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import {PostRepository} from "./post.repository";
-import {PostDTO} from "@domains";
-import {PostType} from "@prisma/client";
+import {PostDTO, PostType} from "@domains";
 import {PaginationType} from "@shared";
 
 @Injectable()

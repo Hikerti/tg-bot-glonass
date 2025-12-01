@@ -1,13 +1,17 @@
 import {Injectable, OnModuleInit} from "@nestjs/common";
 import {InjectQueue} from "@nestjs/bull";
-import {PostDTO} from "@domains";
+import {PostDTO, UserDTO, UserRole, User} from "@domains";
 import {parseInterval} from "@shared";
 import type {Queue} from "bull";
-import {PrismaService} from "@integrations";
+import {Repository} from "typeorm";
+import {InjectRepository} from "@nestjs/typeorm";
 
 @Injectable()
 export class PostScheduler implements OnModuleInit {
-    constructor(@InjectQueue('mail') private mailQueue: Queue, private readonly prisma: PrismaService) {}
+    constructor(
+        @InjectQueue('mail') private mailQueue: Queue,
+        @InjectRepository(User) private readonly database: Repository<User>
+    ) {}
 
     onModuleInit() {
         this.scheduleAllPosts();
@@ -26,7 +30,14 @@ export class PostScheduler implements OnModuleInit {
     async schedulePost(post: PostDTO) {
         try {
             const intervalMs = parseInterval(post.interval)
-            const users = this.prisma.user.findMany({where: {role: 'client'}})
+            const userEntities = await this.database.find({ where: { role: UserRole.CLIENT } })
+
+            if (!userEntities) {
+                console.warn(`No 'client' user found for post ${post.id}`);
+                return;
+            }
+
+            const users: UserDTO[] = userEntities.map(UserDTO.fromModel);
 
             this.mailQueue.add(
                 {

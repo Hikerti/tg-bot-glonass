@@ -1,17 +1,17 @@
-import {PrismaService} from "@integrations";
-import {UserDTO} from "@domains";
+import {UserDTO, User} from "@domains";
 import {Injectable, NotFoundException} from "@nestjs/common";
+import {InjectRepository} from "@nestjs/typeorm";
+import {Repository} from "typeorm";
 
 @Injectable()
 export class AuthRepository {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        @InjectRepository(User)
+        private readonly database: Repository<User>
+    ) {}
 
     async findUserById(id: string): Promise<UserDTO> {
-        const user = await this.prisma.user.findFirst({
-            where: {
-                id,
-            }
-        })
+        const user = await this.database.findOneBy({ id });
 
         if (!user) {
             throw new NotFoundException(`User with id ${id} not found`)
@@ -21,11 +21,7 @@ export class AuthRepository {
     }
 
     async findUserByTgId(tgId: string): Promise<UserDTO> {
-        const user = await this.prisma.user.findFirst({
-            where: {
-                tg_id: tgId
-            }
-        })
+        const user = await this.database.findOneBy({ tgId });
 
         if (!user) {
             throw new NotFoundException(`User with tgId ${tgId} not found`)
@@ -35,16 +31,14 @@ export class AuthRepository {
     }
 
     async deleteUserByTgId(tgId: string): Promise<UserDTO> {
-        const user = await this.prisma.user.delete({
-            where: {
-                tg_id: tgId
-            }
-        })
+        const userToDelete = await this.database.findOneBy({ tgId });
 
-        if (!user) {
+        if (!userToDelete) {
             throw new NotFoundException(`User with tgId ${tgId} not found`)
         }
 
-        return UserDTO.fromModel(user)
+        await this.database.delete({ tgId });
+
+        return UserDTO.fromModel(userToDelete)
     }
 }

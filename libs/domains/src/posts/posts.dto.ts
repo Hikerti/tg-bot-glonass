@@ -1,6 +1,6 @@
 import { IsArray, IsBoolean, IsString } from 'class-validator';
 import { OmitType, PartialType } from '@nestjs/mapped-types';
-import { Post, PostType } from "@prisma/client";
+import {Post, PostType} from "./posts.entites";
 
 export class PostDTO {
     @IsString()
@@ -38,7 +38,7 @@ export class PostDTO {
             date: model.date,
             media: model.media,
             active: model.active,
-            createdAt: model.created_at.toISOString()
+            createdAt: model.createdAt.toISOString()
         }
     }
 }
