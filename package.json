@@ -9,8 +9,8 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
-    "build:bot": "nest build bot",
-    "build:gate": "nest build gate",
+    "build:bot": "nest build bot && tsc-alias -p tsconfig.json",
+    "build:gate": "nest build gate && tsc-alias -p tsconfig.json",
     "start:dev:bot": "nest start bot --watch",
     "start:dev:gate": "node -r ts-node/register -r tsconfig-paths/register ./node_modules/@nestjs/cli/bin/nest.js start gate --watch",
     "start:prod:bot": "node dist/bot/main.js",
@@ -51,6 +51,7 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "telegraf": "^4.16.3",
+    "tsc-alias": "^1.8.16",
     "typeorm": "^0.3.27",
     "xlsx": "^0.18.5"
   },

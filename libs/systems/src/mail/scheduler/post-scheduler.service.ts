@@ -14,14 +14,11 @@ export class PostScheduler implements OnModuleInit {
         private readonly config: ConfigService,
 
         @InjectQueue('mail') private mailQueue: Queue,
-        @InjectRepository(User) private readonly database: Repository<User>
     ) {}
 
     onModuleInit() {
         this.scheduleAllPosts();
     }
-
-
 
     async scheduleAllPosts() {
         const response = await axios.get(`${this.config.get<string>('GATE_URL')}/posts`, {
@@ -44,7 +41,14 @@ export class PostScheduler implements OnModuleInit {
     async schedulePost(post: PostDTO) {
         try {
             const intervalMs = parseInterval(post.interval)
-            const userEntities = await this.database.find({ where: { role: UserRole.CLIENT } })
+            const responseUser = await axios.get(`${this.config.get<string>('GATE_URL')}/users`, {
+                params: {
+                    page: 1,
+                    limit: 9999,
+                    role: UserRole.CLIENT
+                }})
+
+            const userEntities = responseUser.data.items as User[]
 
             if (!userEntities) {
                 console.warn(`No 'client' user found for post ${post.id}`);

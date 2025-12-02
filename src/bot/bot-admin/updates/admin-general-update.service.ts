@@ -19,6 +19,7 @@ export class AdminGeneralUpdateService implements OnModuleInit {
             { command: 'get_posts_list', description: 'Получение списка постов для рассылки на почту' },
             { command: 'get_posts_tg', description: 'Получение списка постов для рассылки в телеграмм' },
             { command: 'get_excel_table', description: 'Получение базы пользователей в виде excel' },
+            { command: 'create_users_from_table', description: 'Создание пользователей из таблицы excel' },
         ];
         try {
             await this.adminBot.telegram.setMyCommands(adminCommands);

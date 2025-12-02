@@ -30,6 +30,11 @@ export class PostDTO {
     createdAt: string;
 
     static fromModel(model: Post): PostDTO {
+        const dateToString = (dateInput: Date | string) => {
+            const dateObject = (dateInput instanceof Date) ? dateInput : new Date(dateInput);
+            return dateObject.toISOString();
+        };
+
         return {
             id: model.id,
             type: model.type,
@@ -38,7 +43,7 @@ export class PostDTO {
             date: model.date,
             media: model.media,
             active: model.active,
-            createdAt: model.createdAt.toISOString()
+            createdAt: dateToString(model.createdAt),
         }
     }
 }

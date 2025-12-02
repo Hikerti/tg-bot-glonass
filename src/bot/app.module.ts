@@ -4,11 +4,14 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { AdminBotModule } from "./bot-admin";
 import {ClientBotModule} from "./bot-client";
 import {session} from "telegraf";
+import {BullModule} from "@nestjs/bull";
+import {BroadcastModule, EmailModule} from "@systems";
 
 
 @Module({
     imports: [
         ConfigModule.forRoot({ envFilePath: 'envs/local/bot/bot.env', isGlobal: true }),
+
         TelegrafModule.forRootAsync({
             botName: 'clientBot',
             imports: [ClientBotModule],
@@ -31,6 +34,14 @@ import {session} from "telegraf";
                 middlewares: [session()],
             }),
         }),
+
+
+        BullModule.forRoot({
+            redis: {host: 'localhost', port: 6379},
+        }),
+
+        EmailModule,
+        BroadcastModule
     ],
 })
 export class AppModule {}

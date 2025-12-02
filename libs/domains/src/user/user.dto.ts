@@ -27,14 +27,19 @@ export class UserDTO {
     updatedAt: string;
 
     static fromModel(model: User): UserDTO {
+        const dateToString = (dateInput: Date | string) => {
+            const dateObject = (dateInput instanceof Date) ? dateInput : new Date(dateInput);
+            return dateObject.toISOString();
+        };
+
         return {
             id: model.id,
             name: model.name,
             email: model.email,
             tgId: model.tgId ?? null,
             role: model.role,
-            createdAt: model.createdAt.toISOString(),
-            updatedAt: model.updatedAt.toISOString(),
+            createdAt: dateToString(model.createdAt),
+            updatedAt: dateToString(model.updatedAt),
         }
     }
 }

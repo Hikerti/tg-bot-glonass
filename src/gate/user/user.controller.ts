@@ -10,7 +10,7 @@ import {
     ParseIntPipe
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { UserDTO } from '@domains';
+import {UserDTO, UserRole} from '@domains';
 
 @Controller('users')
 export class UserController {
@@ -19,9 +19,10 @@ export class UserController {
     @Get()
     async getList(
         @Query('page', ParseIntPipe) page = 1,
-        @Query('limit', ParseIntPipe) limit = 10
+        @Query('limit', ParseIntPipe) limit = 10,
+        @Query('role') role?: string,
     ): Promise<{ items: UserDTO[]; total: number; page: number; limit: number }> {
-        return await this.userService.getListUsers(page, limit);
+        return await this.userService.getListUsers(page, limit, role as UserRole);
     }
 
     @Post()

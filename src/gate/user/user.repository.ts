@@ -39,7 +39,7 @@ export class UserRepository {
             .filter((email): email is string => !!email);
 
         const createdUsers = await this.userRepository.find({
-            where: { email: { $in: emails } as any }, // TypeORM синтаксис для IN-запроса
+            where: { email: { $in: emails } as any },
         });
 
         return createdUsers.map(UserDTO.fromModel);
@@ -75,13 +75,20 @@ export class UserRepository {
         return UserDTO.fromModel(userToDelete);
     }
 
-    async getList(page: number = 1, limit: number = 10): Promise<PaginationType<UserDTO>> {
+    async getList(page: number = 1, limit: number = 10, role?: UserRole): Promise<PaginationType<UserDTO>> {
         const skip = (page - 1) * limit;
+
+        const whereCondition: { role?: UserRole } = {};
+
+        if (role !== undefined && role !== null) {
+            whereCondition.role = role;
+        }
 
         const [items, total] = await this.userRepository.findAndCount({
             skip,
             take: limit,
             order: { createdAt: 'DESC' },
+            where: whereCondition,
         });
 
         const isLast = (page * limit) >= total;
