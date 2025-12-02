@@ -28,7 +28,7 @@ export class ExcelUserImportService {
             );
             const gateUrl = this.config.get<string>('GATE_URL');
 
-            await axios.post(`${gateUrl}/users/bulk`, { users: validUsers });
+            await axios.post(`${gateUrl}/users/bulk`, validUsers);
             return { message: 'Импорт завершён', count: validUsers.length }
 
         } catch (e) {

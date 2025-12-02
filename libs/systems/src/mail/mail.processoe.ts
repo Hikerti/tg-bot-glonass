@@ -1,23 +1,23 @@
 import { Processor, Process, InjectQueue } from "@nestjs/bull";
 import type { Job, Queue } from 'bull';
 import { removeRepeatable } from "@shared";
-import {BroadcastService} from "./broadcast.service";
+import {MailService} from "./mail.service";
 
-@Processor('broadcast')
-export class BroadcastProcessor {
+@Processor('mail')
+export class MailProcessor {
     constructor(
-        private tgNotificationService: BroadcastService,
-        @InjectQueue('broadcast') private broadcastQueue: Queue
+        private mailService: MailService,
+        @InjectQueue('mail') private mailQueue: Queue
     ) {}
 
     @Process()
-    async handleBroadcastJob(job: Job) {
+    async handleMailJob(job: Job) {
         try {
             const { date } = job.data;
 
-            await removeRepeatable(date, job, this.broadcastQueue);
+            await removeRepeatable(date, job, this.mailQueue);
 
-            await this.tgNotificationService.send(job.data);
+            await this.mailService.send(job.data);
 
             console.log(`[Processor] Broadcast job ${job.id} completed.`);
 

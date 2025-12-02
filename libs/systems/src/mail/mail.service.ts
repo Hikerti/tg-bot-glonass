@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
-import {ConfigService} from "@nestjs/config";
-import {SendMail} from "./types";
+import { ConfigService } from "@nestjs/config";
+import { SendMail } from "./types";
+import {AbstractNotificationService, ChannelJobData} from "../forwarding-message";
 
 @Injectable()
-export class MailService {
+export class MailService extends AbstractNotificationService {
     private transporter;
 
     constructor(private config: ConfigService) {
-        // const user = this.config.get<string>('MAIL_NAME')!;
-        // const pass = this.config.get<string>('MAIL_PASSWORD')!;
+        super();
         const user = "anikaev09072007@mail.ru"
         const pass = "lUiKVtoxA1eamnBapbL6"
 
@@ -30,23 +30,38 @@ export class MailService {
         });
     }
 
-    async sendMail(mailData: SendMail)  {
-        try {
-            const {to, text, attachments = [], subject} = mailData
+    public async send(data: ChannelJobData): Promise<void> {
+        const { users, text, media, subject } = data;
 
-            const info = await this.transporter.sendMail({
+        console.log(data)
+
+        for (const user of users) {
+            if (user.email) {
+                const mailData: SendMail = {
+                    to: user.email,
+                    subject: subject || 'Рассылка',
+                    text,
+                    attachments: media
+                };
+                await this.sendSingleMail(mailData);
+            }
+        }
+    }
+
+    private async sendSingleMail(mailData: SendMail) {
+        try {
+            const { to, text, attachments = [], subject } = mailData;
+            console.log(mailData)
+
+            await this.transporter.sendMail({
                 from: "anikaev09072007@mail.ru",
                 to,
                 subject,
                 text,
                 attachments: attachments.map(url => ({ path: url })),
             });
-            console.log(`[MailService] Message sent to ${to}: %s`, info.messageId);
-            return info;
-
         } catch (e) {
-            console.error('[MailService] FAILED to send email. Nodemailer Error:', e.message);
-            throw new Error(`SMTP Send Failure. Check credentials/network. Details: ${e.message || 'Unknown error'}`);
+            console.error(e);
         }
     }
 }

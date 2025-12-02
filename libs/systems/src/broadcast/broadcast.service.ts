@@ -1,65 +1,66 @@
-    import {Injectable, OnModuleInit} from "@nestjs/common";
-    import {InjectQueue} from "@nestjs/bull";
-    import type {Queue} from "bull";
-    import {Post, PostDTO, PostType, User, UserDTO, UserRole} from "@domains";
-    import axios from "axios";
-    import {ConfigService} from "@nestjs/config";
-    import {BroadcastJobData} from "./type";
+import {Injectable} from "@nestjs/common";
+import {InjectQueue} from "@nestjs/bull";
+import type {Job, Queue} from "bull";
+import {ConfigService} from "@nestjs/config";
+import {BroadcastJobData} from "./type";
+import {InjectBot} from "nestjs-telegraf";
+import {Telegraf} from "telegraf";
+import {removeRepeatable} from "@shared";
+import {AbstractNotificationService, ChannelJobData} from "../forwarding-message";
 
-    @Injectable()
-    export class BroadcastService implements OnModuleInit{
-        constructor(
-            private readonly config: ConfigService,
-            @InjectQueue('broadcast') private broadcastQueue: Queue,
-        ) {}
+@Injectable()
+export class BroadcastService extends AbstractNotificationService {
+    constructor(
+        private readonly config: ConfigService,
+        @InjectBot('clientBot')
+        private clientBot: Telegraf,
+    ) {
+        super();
+    }
+    async send(data: ChannelJobData) {
+        const { users, text, media, date } = data;
 
-        onModuleInit() {
-            this.createBroadcastJob()
-        }
+        // if (media && media.length > 0) {
+        //     const mediaGroup = media.map((url, index) => {
+        //         const type = getMediaType(url);
+        //         const caption = (index === 0) ? text : undefined;
+        //
+        //         if (type === 'photo') {
+        //             return {
+        //                 type: 'photo',
+        //                 media: url,
+        //                 caption: caption
+        //             } as InputMediaPhoto;
+        //         } else {
+        //             return {
+        //                 type: 'video',
+        //                 media: url,
+        //                 caption: caption
+        //             } as InputMediaVideo;
+        //         }
+        //     }) as InputMediaPhoto[];
+        //     await this.clientBot.telegram.sendMediaGroup(chatId, mediaGroup);
+        // } else {
+        //
+        // }
 
-        async createBroadcastJob() {
-            try {
-                const responsePost = await axios.get(`${this.config.get<string>('GATE_URL')}/posts`, {
-                    params: {
-                        page: 1,
-                        limit: 9999,
-                        type: PostType.TG,
-                    }
-                })
+        for (const user of users) {
+            const chatId = user.tgId;
 
-                const postEntities = responsePost.data.items as Post[]
-
-                const posts: PostDTO[] = postEntities.map(PostDTO.fromModel);
-
-                const responseUser = await axios.get(`${this.config.get<string>('GATE_URL')}/users`, {
-                    params: {
-                        page: 1,
-                        limit: 9999,
-                        role: UserRole.CLIENT
-                    }})
-
-                const userEntities = responseUser.data.items as User[]
-                const users: UserDTO[] = userEntities.map(UserDTO.fromModel);
-                console.log(posts, userEntities)
-
-                for (const post of posts) {
-                    for (const user of users) {
-                        if (user && user.tgId) {
-                            await this.broadcastQueue.add(
-                                'send-message',
-                                {
-                                    chatId: user.tgId,
-                                    text: post.text,
-                                    media: post.media,
-                                } as BroadcastJobData,
-                                { delay: 100 }
-                            );
-                        }
-                    }
-                }
-            } catch (e) {
-                console.error(e);
+            if (!chatId) {
+                console.warn(`[BroadcastService] User ${user.id} has no tgId. Skipping.`);
+                continue;
             }
 
+            try {
+                await this.clientBot.telegram.sendMessage(chatId, text);
+
+                console.log(`Сообщение отправлено пользователю ${chatId}`);
+            }
+
+            catch (error) {
+            console.error(`Ошибка при отправке сообщения пользователю ${chatId}: ${error.message}`);
         }
     }
+    }
+}

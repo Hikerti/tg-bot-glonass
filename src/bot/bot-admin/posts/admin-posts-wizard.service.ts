@@ -65,7 +65,7 @@ export class AdminPostsWizardService extends AdminGetMedia{
         this.state.text = text;
 
         await ctx.reply(
-            "🖼️ **Отправьте первое медиа** (фото, видео, аудио или документ):"
+            "🖼️ Отправьте первое медиа (фото, видео, аудио или документ):"
         );
 
         ctx.wizard.next();
@@ -87,7 +87,7 @@ export class AdminPostsWizardService extends AdminGetMedia{
             this.state.media.push(file.url);
 
             await ctx.reply(
-                "Файл загружен. Отправьте **ещё** файл или завершите:",
+                "Файл загружен. Отправьте ещё файл или завершите:",
                 Markup.inlineKeyboard([
                     [Markup.button.callback("Загрузить ещё файл", "next_media")],
                     [Markup.button.callback("Закончить отправление", "cancel_media")]

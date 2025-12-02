@@ -1,9 +1,9 @@
 import {Module} from "@nestjs/common";
 import {ConfigModule} from "@nestjs/config";
-import {PostScheduler} from "./scheduler";
-import { MailProcessor } from "./mail.processor";
 import {MailService} from "./mail.service";
 import {BullModule} from "@nestjs/bull";
+import {MailScheduler} from "./mail.scheduler";
+import {MailProcessor} from "./mail.processoe";
 
 @Module({
     imports: [
@@ -15,7 +15,10 @@ import {BullModule} from "@nestjs/bull";
         }),
     ],
     providers: [
-        PostScheduler, MailProcessor, MailService
+        MailService, MailScheduler, MailProcessor
+    ],
+    exports: [
+        MailService, MailScheduler, MailProcessor
     ]
 })
 

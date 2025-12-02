@@ -17,7 +17,7 @@ export class AdminExcelService {
             const buffer = await this.exporter.exportUserFromExcel();
 
             if (!buffer) {
-                return await ctx.reply('Нет пользователей для выгрузки ❌');
+                await ctx.reply('Нет пользователей для выгрузки ❌');
             }
 
             await ctx.replyWithDocument({
@@ -39,7 +39,7 @@ export class AdminExcelService {
                 const file = ctxDoc.message.document;
 
                 if (file.file_name !== undefined && !file.file_name.endsWith('.xlsx')) {
-                    return await ctxDoc.reply('Пожалуйста, отправьте файл Excel (.xlsx)');
+                    await ctxDoc.reply('Пожалуйста, отправьте файл Excel (.xlsx)');
                 }
 
                 const fileLink = await ctxDoc.telegram.getFileLink(file.file_id);
@@ -51,7 +51,6 @@ export class AdminExcelService {
                     await ctxDoc.reply(`Импорт завершён ✅\nСоздано пользователей: ${result.count}`);
                 }
             } catch (e) {
-                console.error(e);
                 await ctxDoc.reply('Ошибка при обработке файла ❌');
             }
         })

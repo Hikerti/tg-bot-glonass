@@ -25,24 +25,17 @@ export class UserRepository {
     }
 
     async createMany(users: UserDTO.Create[]): Promise<UserDTO[]> {
+        console.log(users);
         const userEntities = users.map(u => this.userRepository.create({
             name: u.name,
             email: u.email ?? null,
             tgId: u.tgId ?? null,
-            role: u.role as UserRole,
+            role: UserRole.CLIENT,
         }));
 
-        await this.userRepository.save(userEntities);
+        const savedUsers = await this.userRepository.save(userEntities);
 
-        const emails: string[] = users
-            .map(u => u.email)
-            .filter((email): email is string => !!email);
-
-        const createdUsers = await this.userRepository.find({
-            where: { email: { $in: emails } as any },
-        });
-
-        return createdUsers.map(UserDTO.fromModel);
+        return savedUsers.map(UserDTO.fromModel);
     }
 
     async update(id: string, userData: UserDTO.Update): Promise<UserDTO> {

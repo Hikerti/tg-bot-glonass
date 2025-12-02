@@ -11,7 +11,13 @@ export class ExcelUserExportService {
     async exportUserFromExcel() {
         try {
             const gateUrl = this.config.get<string>("GATE_URL");
-            const response = await axios.get(`${gateUrl}/users`);
+            const response = await axios.get(`${gateUrl}/users`, {
+                params: {
+                    page: 1,
+                    limit: 9999,
+                    role: 'client'
+                }
+            });
             const users: UserDTO[] = response.data.items;
 
             if (!users.length) return null;
