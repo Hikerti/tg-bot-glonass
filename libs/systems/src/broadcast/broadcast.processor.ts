@@ -1,6 +1,5 @@
 import { Processor, Process, InjectQueue } from "@nestjs/bull";
 import type { Job, Queue } from 'bull';
-import { removeRepeatable } from "@shared";
 import {BroadcastService} from "./broadcast.service";
 
 @Processor('broadcast')
@@ -13,10 +12,7 @@ export class BroadcastProcessor {
     @Process()
     async handleBroadcastJob(job: Job) {
         try {
-            const { date } = job.data;
-
-            await removeRepeatable(date, job, this.broadcastQueue);
-
+            console.log(">>>> PROCESSOR STARTED", job.id, job.data);
             await this.tgNotificationService.send(job.data);
 
             console.log(`[Processor] Broadcast job ${job.id} completed.`);

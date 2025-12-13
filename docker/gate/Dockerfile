@@ -1,43 +1,21 @@
-FROM oven/bun:latest AS deps
-
+FROM oven/bun:1.3 AS deps
 WORKDIR /app
-
 COPY package.json bun.lock* ./
-COPY prisma/ ./prisma
-
 RUN bun install --verbose --no-cache
-RUN bunx prisma generate
 
 FROM deps AS build
 ARG SERVICE_NAME
-
 WORKDIR /app
-
-RUN apt-get update -y && apt-get install -y openssl
-
 COPY /libs ./libs
-COPY src/$SERVICE_NAME .//$SERVICE_NAME
+COPY src/migrations ./src/migrations
+COPY src/$SERVICE_NAME ./src/$SERVICE_NAME
 COPY tsconfig*.json nest-cli.json ./
-RUN if [ -n "$SERVICE_NAME" ]; then \
-      echo "🚀 Building only $SERVICE_NAME" && \
-      bun run build $SERVICE_NAME; \
-    else \
-      echo "❌ SERVICE_NAME is not set. Please provide --build-arg SERVICE_NAME=<name>" >&2 && \
-      exit 1; \
-    fi
+RUN bun run build:$SERVICE_NAME
 
-
-FROM oven/bun:latest AS runtime
-
+FROM oven/bun:1.3 AS runtime
 WORKDIR /app
-
-RUN apt-get update -y && apt-get install -y openssl
-
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=build /app/dist/apps/$SERVICE_NAME ./dist/apps/$SERVICE_NAME
-
+COPY --from=build /app/dist/$SERVICE_NAME ./dist/$SERVICE_NAME
 COPY package.json bun.lockb* ./
 COPY envs/${ENVIRONMENT} ./envs/${ENVIRONMENT}
-
-
-CMD ["sh", "-c", "echo '✅ Container ready! To run: bun run dist/apps/<service>/main.js'"]
+CMD ["sh", "-c", "echo '✅ Container ready! To run: bun run dist/<service>/main.js'"]

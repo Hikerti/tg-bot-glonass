@@ -1,4 +1,4 @@
-import {Wizard, WizardStep, Ctx, InjectBot} from 'nestjs-telegraf';
+import {Wizard, WizardStep, Ctx, InjectBot, Action} from 'nestjs-telegraf';
 import {Scenes, Markup, Telegraf, Context} from 'telegraf';
 import axios from 'axios';
 import { ConfigService } from '@nestjs/config';
@@ -27,10 +27,19 @@ export class AdminUsersWizardService {
         this.state = ctx.wizard.state as CreateUserWizardState;
     }
 
+    @Action('cancel_create_user')
+    async cancel_create_user(ctx: Scenes.WizardContext): Promise<void> {
+        this.init(ctx)
+        this.state = {}
+        await ctx.scene.leave();
+    }
+
     @WizardStep(1)
     async step1(@Ctx() ctx: Scenes.WizardContext) {
         this.init(ctx);
-        await ctx.reply('Введите ФИО пользователя, которое хотите добавить в базу:');
+        await ctx.reply('Введите ФИО пользователя, которое хотите добавить в базу:', Markup.inlineKeyboard([
+            [Markup.button.callback("❌ Отменить", "cancel_create_user")]
+        ]));
         ctx.wizard.next();
     }
 
@@ -44,7 +53,9 @@ export class AdminUsersWizardService {
         }
 
         this.state.name = text;
-        await ctx.reply('Введите email пользователя, которое хотите добавить в базу:');
+        await ctx.reply('Введите email пользователя, которое хотите добавить в базу:', Markup.inlineKeyboard([
+            [Markup.button.callback("❌ Отменить", "cancel_create_user")]
+        ]));
         ctx.wizard.next();
     }
 
@@ -59,14 +70,19 @@ export class AdminUsersWizardService {
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(text)) {
-            return ctx.reply('Некорректный формат email. Попробуйте снова:');
+            return ctx.reply('Некорректный формат email. Попробуйте снова:', Markup.inlineKeyboard([
+                [Markup.button.callback("❌ Отменить", "cancel_create_user")]
+            ]));
         }
 
         this.state.email = text;
 
         await ctx.reply(
             'Введите tgId пользователя (необязательно, можно пропустить):',
-            Markup.inlineKeyboard([[Markup.button.callback('Пропустить', 'skip_tg_id')]])
+            Markup.inlineKeyboard([
+                [Markup.button.callback('Пропустить', 'skip_tg_id')],
+                [Markup.button.callback("❌ Отменить", "cancel_create_user")]
+            ])
         );
 
         ctx.wizard.next();

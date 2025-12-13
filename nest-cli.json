@@ -25,6 +25,53 @@
       "compilerOptions": {
         "outDir": "dist/gate"
       }
+    },
+    "domains": {
+      "type": "library",
+      "root": "libs/domains",
+      "entryFile": "index",
+      "sourceRoot": "libs/domains/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/domains/tsconfig.lib.json"
+      }
+    },
+    "infrastract": {
+      "type": "library",
+      "root": "libs/infrastract",
+      "entryFile": "index",
+      "sourceRoot": "libs/infrastract/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/infrastract/tsconfig.lib.json"
+      }
+    },
+    "integrations": {
+      "type": "library",
+      "root": "libs/integrations",
+      "entryFile": "index",
+      "sourceRoot": "libs/integrations/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/integrations/tsconfig.lib.json"
+      }
+    },
+    "shared": {
+      "type": "library",
+      "root": "libs/shared",
+      "entryFile": "index",
+      "sourceRoot": "libs/shared/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/shared/tsconfig.lib.json"
+      }
+    },
+    "systems": {
+      "type": "library",
+      "root": "libs/systems",
+      "entryFile": "index",
+      "sourceRoot": "libs/systems/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/systems/tsconfig.lib.json"
+      }
     }
-  }
+  },
+  "monorepo": true,
+  "root": "src"
 }

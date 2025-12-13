@@ -21,8 +21,10 @@ import {ConfigModule, ConfigService} from "@nestjs/config";
                 password: configService.get<string>('DATABASE_PASSWORD'),
                 database: configService.get<string>('DATABASE_DB'),
                 migrations: ["src/migrations/*.ts"],
+                migrationsRun: true,
                 entities: [User, Post],
-                synchronize: false
+                synchronize: true,
+                logging: true,
             }),
             inject: [ConfigService],
         }),

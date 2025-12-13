@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import {UserRepository} from "./user.repository";
-import {UserDTO, UserRole} from "@domains";
+import {User, UserDTO, UserRole} from "@domains";
 import {PaginationType} from "@shared";
 
 @Injectable()
@@ -25,5 +25,17 @@ export class UserService {
 
     async delete(id: string): Promise<UserDTO> {
         return await this.userRepository.delete(id);
+    }
+
+    async createOrUpdateByVkId(vkId: number, name?: string): Promise<User> {
+        return this.userRepository.createOrUpdateByVkId(vkId, name)
+    }
+
+    async removeByVkIds(vkIds: number[]): Promise<void> {
+        return this.userRepository.removeByVkIds(vkIds)
+    }
+
+    async getAllVkIds(): Promise<number[]> {
+        return this.userRepository.getAllVkIds()
     }
 }

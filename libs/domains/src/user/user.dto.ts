@@ -18,6 +18,10 @@ export class UserDTO {
     tgId?: string | null;
 
     @IsString()
+    @IsOptional()
+    vkId?: number | null;
+
+    @IsString()
     role: UserRole;
 
     @IsString()
@@ -37,6 +41,7 @@ export class UserDTO {
             name: model.name,
             email: model.email,
             tgId: model.tgId ?? null,
+            vkId: model.vkId ?? null,
             role: model.role,
             createdAt: dateToString(model.createdAt),
             updatedAt: dateToString(model.updatedAt),

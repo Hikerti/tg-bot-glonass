@@ -24,11 +24,11 @@ export class AdminPostsService {
             })
 
             const data: PaginationType<PostDTO> = response.data;
-            // const mediaGroup = data.items[0].media.map(url => {
-            //     return { type: 'photo', media: url } as InputMediaPhoto;
-            // });
-            //
-            // await ctx.replyWithMediaGroup(mediaGroup);
+            const mediaGroup = data.items[0].media.map(url => {
+                return { type: 'photo', media: url } as InputMediaPhoto;
+            });
+
+            await ctx.replyWithMediaGroup(mediaGroup);
 
             await ctx.reply(data.items[0].text, Markup.inlineKeyboard([
                 [Markup.button.callback('Изменить содержимое', 'edit_post')],

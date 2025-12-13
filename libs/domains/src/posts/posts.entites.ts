@@ -3,6 +3,7 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeor
 export enum PostType {
     TG = 'tg',
     MAIL = 'mail',
+    VK = 'vk'
 }
 
 @Entity({ name: 'posts' })
@@ -30,6 +31,12 @@ export class Post {
 
     @Column({ default: false })
     active: boolean;
+
+    @Column({name: 'post_to_wall', default: false })
+    postToWall: boolean
+
+    @Column({name: 'post_to_message', default: false })
+    postToMessage: boolean
 
     @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;

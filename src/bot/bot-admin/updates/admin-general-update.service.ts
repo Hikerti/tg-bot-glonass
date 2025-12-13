@@ -11,8 +11,6 @@ export class AdminGeneralUpdateService implements OnModuleInit {
 
     async onModuleInit() {
         const adminCommands = [
-            { command: 'start', description: 'Начало' },
-            { command: 'help', description: 'Список всех команд' },
             { command: 'get_users', description: 'Получение списка всех пользователей' },
             { command: 'create_user', description: 'Добавить пользователя для рассылки' },
             { command: 'create_post', description: 'Создание контента для рассылки' },

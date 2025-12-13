@@ -8,6 +8,7 @@ import { Message } from "telegraf/types";
 import { PostDTO } from "@domains";
 import {S3Service} from "@infrastract";
 import {AdminGetMedia} from "./admin-get-media";
+import {BroadcastScheduler, MailScheduler, VkScheduler} from "@systems";
 
 interface UpdatePostWizardState {
     postId?: string;
@@ -25,12 +26,15 @@ export interface MyContext extends Scenes.WizardContext {
     session: SessionData;
 }
 
-@Wizard('update-post-wizard')
+@Wizard('update-post-wizard', { botName: "adminBot" })
 export class AdminPostsWizardUpdateService extends AdminGetMedia {
     constructor(
         protected readonly config: ConfigService,
         @InjectBot('adminBot') protected readonly bot: Telegraf<Context>,
         protected readonly s3Service: S3Service,
+        private readonly broadcastScheduler: BroadcastScheduler,
+        private readonly vkScheduler: VkScheduler,
+        private readonly mailScheduler: MailScheduler,
     ) {
         super(config, bot, s3Service);
     }
@@ -62,6 +66,7 @@ export class AdminPostsWizardUpdateService extends AdminGetMedia {
             Markup.inlineKeyboard([
                 [Markup.button.callback('✏️ Изменить текст', 'edit_text')],
                 [Markup.button.callback('➡️ Перейти к медиа', 'to_media')],
+                [Markup.button.callback('Завершить', 'cancel_all')],
             ])
         );
 
@@ -72,7 +77,9 @@ export class AdminPostsWizardUpdateService extends AdminGetMedia {
     async onEditText(@Ctx() ctx: MyContext) {
         const s = this.state(ctx);
         s.action = 'wait_new_text';
-        await ctx.reply('Отправьте новый текст поста:');
+        await ctx.reply('Отправьте новый текст поста:', Markup.inlineKeyboard([
+            [Markup.button.callback('Завершить', 'cancel_all')],
+        ]));
     }
 
     @WizardStep(2)
@@ -88,6 +95,7 @@ export class AdminPostsWizardUpdateService extends AdminGetMedia {
                 Markup.inlineKeyboard([
                     [Markup.button.callback('💾 Сохранить текст', 'save_text')],
                     [Markup.button.callback('↩️ Отменить', 'cancel_text')],
+                    [Markup.button.callback('Завершить', 'cancel_all')],
                 ])
             );
             return;
@@ -130,6 +138,7 @@ export class AdminPostsWizardUpdateService extends AdminGetMedia {
                 Markup.inlineKeyboard([
                     [Markup.button.callback('➕ Добавить медиа', 'add_media')],
                     [Markup.button.callback('➡️ Далее', 'final')],
+                    [Markup.button.callback('Завершить', 'cancel_all')],
                 ])
             );
             return;
@@ -146,6 +155,7 @@ export class AdminPostsWizardUpdateService extends AdminGetMedia {
                 ...Markup.inlineKeyboard([
                     [Markup.button.callback('✔️ Оставить', 'keep_media')],
                     [Markup.button.callback('❌ Удалить', 'del_media')],
+                    [Markup.button.callback('Завершить', 'cancel_all')],
                 ]),
             });
         } else if (lower.endsWith('.mp3') || lower.includes('audio')) {
@@ -155,6 +165,7 @@ export class AdminPostsWizardUpdateService extends AdminGetMedia {
                 Markup.inlineKeyboard([
                     [Markup.button.callback('✔️ Оставить', 'keep_media')],
                     [Markup.button.callback('❌ Удалить', 'del_media')],
+                    [Markup.button.callback('Завершить', 'cancel_all')],
                 ])
             );
         } else if (lower.endsWith('.pdf') || lower.includes('document')) {
@@ -164,6 +175,7 @@ export class AdminPostsWizardUpdateService extends AdminGetMedia {
                 Markup.inlineKeyboard([
                     [Markup.button.callback('✔️ Оставить', 'keep_media')],
                     [Markup.button.callback('❌ Удалить', 'del_media')],
+                    [Markup.button.callback('Завершить', 'cancel_all')],
                 ])
             );
         } else {
@@ -172,6 +184,7 @@ export class AdminPostsWizardUpdateService extends AdminGetMedia {
                 ...Markup.inlineKeyboard([
                     [Markup.button.callback('✔️ Оставить', 'keep_media')],
                     [Markup.button.callback('❌ Удалить', 'del_media')],
+                    [Markup.button.callback('Завершить', 'cancel_all')],
                 ]),
             });
         }
@@ -219,6 +232,7 @@ export class AdminPostsWizardUpdateService extends AdminGetMedia {
             Markup.inlineKeyboard([
                 [Markup.button.callback('➕ Добавить', 'add_media')],
                 [Markup.button.callback('➡️ Далее', 'final')],
+                [Markup.button.callback('Завершить', 'cancel_all')],
             ])
         );
     }
@@ -297,6 +311,19 @@ export class AdminPostsWizardUpdateService extends AdminGetMedia {
 
         try {
             await axios.put(`${this.config.get<string>('GATE_URL')}/posts/${s.postId}`, payload);
+
+            const response = await axios.get(`${this.config.get<string>('GATE_URL')}/posts/${s.postId}`);
+            const updatedPost: PostDTO = response.data;
+            console.log(`[WIZARD] Calling updatePost for ID: ${s.postId} with new text: ${updatedPost.text}`);
+
+            if (updatedPost.type === 'vk') {
+                await this.vkScheduler.updatePost(updatedPost);
+            } else if (updatedPost.type === 'tg') {
+                await this.broadcastScheduler.updatePost(updatedPost);
+            } else if (updatedPost.type === 'mail') {
+                await this.mailScheduler.updatePost(updatedPost);
+            }
+
             await ctx.reply('Изменения сохранены ✔');
         } catch (e) {
             console.error(e);

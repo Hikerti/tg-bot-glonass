@@ -1,14 +1,17 @@
 import { Module } from "@nestjs/common";
 import { AdminGeneralUpdateService } from "./updates";
-import { AdminPostsService, AdminPostsWizardService } from "./posts";
+import { AdminPostsService, AdminPostsWizardService, AdminPostsWizardUpdateService } from "./posts";
 import { AdminUserService, AdminUsersWizardService } from "./users";
 import { AdminExcelService } from "./excel";
 import {ExcelModule, S3Module} from "@infrastract";
+import { AiModule } from "@integrations";
+import {BroadcastModule, EmailModule, VkModule} from "@systems";
 
 @Module({
-    imports: [S3Module, ExcelModule],
+    imports: [S3Module, ExcelModule, AiModule, BroadcastModule, EmailModule, VkModule],
 
     providers: [
+        AdminPostsWizardUpdateService,
         AdminGeneralUpdateService,
         AdminPostsWizardService,
         AdminUsersWizardService,
@@ -17,6 +20,7 @@ import {ExcelModule, S3Module} from "@infrastract";
         AdminExcelService,
     ],
     exports: [
+        AdminPostsWizardUpdateService,
         AdminGeneralUpdateService,
         AdminPostsWizardService,
         AdminUsersWizardService,

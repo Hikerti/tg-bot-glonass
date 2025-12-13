@@ -1,10 +1,11 @@
-import {Module} from "@nestjs/common";
+import {Global, Module} from "@nestjs/common";
 import {ConfigModule} from "@nestjs/config";
 import {MailService} from "./mail.service";
 import {BullModule} from "@nestjs/bull";
 import {MailScheduler} from "./mail.scheduler";
-import {MailProcessor} from "./mail.processoe";
+import {MailProcessor} from "./mail.processor";
 
+@Global()
 @Module({
     imports: [
         ConfigModule.forRoot({

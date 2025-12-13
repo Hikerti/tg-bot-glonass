@@ -1,10 +1,11 @@
 import { BullModule } from "@nestjs/bull";
-import {Module} from "@nestjs/common";
+import {Global, Module} from "@nestjs/common";
 import {ConfigModule} from "@nestjs/config";
 import {BroadcastProcessor} from "./broadcast.processor";
 import {BroadcastService} from "./broadcast.service";
 import {BroadcastScheduler} from "./broadcast.scheduler";
 
+@Global()
 @Module({
     imports: [
         BullModule.registerQueue({

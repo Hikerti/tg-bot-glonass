@@ -10,7 +10,7 @@ import {
     ParseIntPipe
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import {UserDTO, UserRole} from '@domains';
+import { UserDTO, UserRole } from '@domains';
 
 @Controller('users')
 export class UserController {
@@ -21,7 +21,7 @@ export class UserController {
         @Query('page', ParseIntPipe) page = 1,
         @Query('limit', ParseIntPipe) limit = 10,
         @Query('role') role?: string,
-    ): Promise<{ items: UserDTO[]; total: number; page: number; limit: number }> {
+    ): Promise<{ items: UserDTO[]; total: number; page: number; limit: number; isLast?: boolean }> {
         return await this.userService.getListUsers(page, limit, role as UserRole);
     }
 
@@ -46,5 +46,26 @@ export class UserController {
     @Delete(':id')
     async delete(@Param('id') id: string): Promise<UserDTO> {
         return await this.userService.delete(id);
+    }
+
+    @Post('/vk')
+    async createOrUpdateByVk(
+        @Body('vkId') vkId: number,
+        @Body('name') name?: string
+    ) {
+        return await this.userService.createOrUpdateByVkId(vkId, name);
+    }
+
+    @Delete('/vk')
+    async removeByVkIds(
+        @Body('vkIds') vkIds: number[]
+    ): Promise<{ success: boolean }> {
+        await this.userService.removeByVkIds(vkIds);
+        return { success: true };
+    }
+
+    @Get('/vk')
+    async getAllVkIds(): Promise<number[]> {
+        return await this.userService.getAllVkIds();
     }
 }

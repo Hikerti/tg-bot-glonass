@@ -5,7 +5,7 @@ import { AdminBotModule } from "./bot-admin";
 import {ClientBotModule} from "./bot-client";
 import {session} from "telegraf";
 import {BullModule} from "@nestjs/bull";
-import {BroadcastModule, EmailModule} from "@systems";
+import {BroadcastModule, EmailModule, VkModule} from "@systems";
 
 
 @Module({
@@ -35,13 +35,13 @@ import {BroadcastModule, EmailModule} from "@systems";
             }),
         }),
 
-
         BullModule.forRoot({
-            redis: {host: 'localhost', port: 6379},
+            redis: {host: 'redis', port: 6379},
         }),
 
         EmailModule,
-        BroadcastModule
+        BroadcastModule,
+        VkModule
     ],
 })
 export class AppModule {}

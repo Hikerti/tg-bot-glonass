@@ -36,8 +36,7 @@ export class AdminGetMedia {
         if ("document" in msg) return msg.document.file_name || `document_${msg.message_id}.dat`;
         return null;
     }
-
-    protected async uploadMediaFromTelegram(msg: Message) {
+    protected async uploadMediaFromTelegram(msg: Message): Promise<{ url: string } | null> {
         const fileId = this.extractMediaFileId(msg);
         if (!fileId) return null;
 
@@ -54,6 +53,8 @@ export class AdminGetMedia {
         const mimeType = this.getMimeTypeFromMessage(msg) || 'application/octet-stream';
         const originalname = this.getFileNameFromMessage(msg) || `${fileId}`;
 
-        return this.s3Service.uploadFile({ buffer, originalname, mimetype: mimeType });
+        const result = await this.s3Service.uploadFile({ buffer, originalname, mimetype: mimeType });
+
+        return result && result.url ? { url: result.url } : null;
     }
 }

@@ -37,21 +37,18 @@ services:
   gate:
     <<: *app
     container_name: gate
-    hostname: ${GATE_HTTP_HOST}
     build:
       <<: *app-build
       args:
         SERVICE_NAME: gate
-    command: ["bun", "dist/apps/gate/main.js"]
     environment:
       <<: *common-env
-    ports:
-      - "${GATE_HTTP_PORT}:${GATE_HTTP_PORT}"
-
+    command: sh -c "bunx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js -d ./libs/integrations/src/ormconfig.ts migration:run && bun run start:prod:gate"
+    restart: "no"
     depends_on:
       - postgres
-      - redis
       - minio
+      - redis
       - nginx
     networks:
       - glonass_cluster
@@ -63,17 +60,13 @@ services:
       <<: *app-build
       args:
         SERVICE_NAME: bot
-    command: ["bun", "dist/apps/bot/main.js"]
+    command: [ "bun", "dist/src/bot/main.js" ]
     environment:
       <<: *common-env
     depends_on:
-      postgres:
-        condition: service_started
-      redis:
-        condition: service_started
-      nginx:
-        condition: service_started
-      minio:
-        condition: service_healthy
+      - postgres
+      - redis
+      - minio
+      - nginx
     networks:
       - glonass_cluster

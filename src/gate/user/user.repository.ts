@@ -16,6 +16,7 @@ export class UserRepository {
             name: userData.name,
             email: userData.email ?? null,
             tgId: userData.tgId ?? null,
+            vkId: userData.vkId ?? null,
             role: userData.role as UserRole,
         });
 
@@ -30,6 +31,7 @@ export class UserRepository {
             name: u.name,
             email: u.email ?? null,
             tgId: u.tgId ?? null,
+            vkId: u.vkId ?? null,
             role: UserRole.CLIENT,
         }));
 
@@ -48,6 +50,7 @@ export class UserRepository {
             name: userData.name,
             email: userData.email,
             tgId: userData.tgId,
+            vkId: userData.vkId,
             role: userData.role as UserRole,
         });
 
@@ -103,5 +106,46 @@ export class UserRepository {
         }
 
         return UserDTO.fromModel(user);
+    }
+
+
+    async findByVkId(vkId: number): Promise<User | null> {
+        return await this.userRepository.findOne({ where: { vkId } });
+    }
+
+    async createOrUpdateByVkId(vkId: number, name?: string): Promise<User> {
+        let user = await this.findByVkId(vkId);
+        if (!user) {
+            user = this.userRepository.create({
+                vkId,
+                name: name ?? `VK User ${vkId}`,
+                role: UserRole.CLIENT,
+                email: null,
+                tgId: null,
+            });
+        } else {
+            user.name = name ?? user.name;
+        }
+        return await this.userRepository.save(user);
+    }
+
+    async removeByVkIds(vkIds: number[]): Promise<void> {
+        if (!vkIds.length) return;
+        await this.userRepository
+            .createQueryBuilder()
+            .update(User)
+            .set({ vkId: null })
+            .where('vkId IN (:...ids)', { ids: vkIds })
+            .execute();
+    }
+
+    async getAllVkIds(): Promise<number[]> {
+        const users = await this.userRepository
+            .createQueryBuilder('user')
+            .select('user.vkId')
+            .where('user.vkId IS NOT NULL')
+            .getRawMany<{ user_vkId: number }>();
+
+        return users.map(u => u.user_vkId);
     }
 }

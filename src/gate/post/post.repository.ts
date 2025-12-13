@@ -18,6 +18,8 @@ export class PostRepository {
             interval: postData.interval,
             date: postData.date,
             media: postData.media,
+            postToWall: postData.postToWall,
+            postToMessage: postData.postToMessage,
             active: postData.active,
         });
 

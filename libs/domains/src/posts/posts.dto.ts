@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsString } from 'class-validator';
+import {IsArray, IsBoolean, IsOptional, IsString} from 'class-validator';
 import { OmitType, PartialType } from '@nestjs/mapped-types';
 import {Post, PostType} from "./posts.entites";
 
@@ -26,6 +26,14 @@ export class PostDTO {
     @IsBoolean()
     active: boolean;
 
+    @IsBoolean()
+    @IsOptional()
+    postToWall?: boolean;
+
+    @IsBoolean()
+    @IsOptional()
+    postToMessage?: boolean;
+
     @IsString()
     createdAt: string;
 
@@ -43,6 +51,8 @@ export class PostDTO {
             date: model.date,
             media: model.media,
             active: model.active,
+            postToWall: model.postToWall,
+            postToMessage: model.postToMessage,
             createdAt: dateToString(model.createdAt),
         }
     }

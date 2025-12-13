@@ -33,8 +33,6 @@ export class MailService extends AbstractNotificationService {
     public async send(data: ChannelJobData): Promise<void> {
         const { users, text, media, subject } = data;
 
-        console.log(data)
-
         for (const user of users) {
             if (user.email) {
                 const mailData: SendMail = {
@@ -51,7 +49,6 @@ export class MailService extends AbstractNotificationService {
     private async sendSingleMail(mailData: SendMail) {
         try {
             const { to, text, attachments = [], subject } = mailData;
-            console.log(mailData)
 
             await this.transporter.sendMail({
                 from: "anikaev09072007@mail.ru",
