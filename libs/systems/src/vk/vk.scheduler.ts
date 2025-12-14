@@ -19,9 +19,7 @@ export class VkScheduler extends AbstractPostScheduler {
     }
 
     async syncUsers() {
-        console.log("🔄 Синхронизация подписчиков VK...");
         await this.vkService.syncSubscribers();
-        console.log("✅ Подписчики VK синхронизированы.");
     }
 
     protected prepareJobData(post: PostDTO, users: UserDTO[]): ChannelJobData {

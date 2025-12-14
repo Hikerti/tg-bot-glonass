@@ -24,7 +24,6 @@ export class MailService extends AbstractNotificationService {
         });
 
         this.transporter.verify().then(() => {
-            console.log("✅ SMTP Mail.ru connection verified and ready.");
         }).catch(error => {
             console.error("❌ SMTP Mail.ru verification FAILED:", error.message);
         });

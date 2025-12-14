@@ -12,10 +12,8 @@ export class MailProcessor {
     @Process()
     async handleMailJob(job: Job) {
         try {
-            console.log(`[Processor] mail job ${job.id} completed.`);
             await this.mailService.send(job.data);
 
-            console.log(`[Processor] mail job ${job.id} completed.`);
         } catch (e) {
             console.error(`[Processor] Error handling mail job ${job.id}:`, e);
             throw e;

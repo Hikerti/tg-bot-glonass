@@ -108,8 +108,25 @@ export class AdminPostsWizardService extends AdminGetMedia {
         }
 
         ctx.wizard.state.text = msgText;
-        await ctx.reply("Текст принят. Шаг 2/5: Отправьте медиафайл (фото/видео/документ/аудио):");
+        await ctx.reply("Текст принят. Шаг 2/5: Отправьте медиафайл (фото/видео/документ/аудио):", Markup.inlineKeyboard([
+            [Markup.button.callback("➡️ Пропустить", "skip_media")], [Markup.button.callback("❌ Отменить", "cancel_post_creation")]
+        ]));
         await ctx.wizard.next();
+    }
+
+    @Action("skip_media")
+    async skipMedia(@Ctx() ctx: PostCreationContext) {
+        this.ensureState(ctx);
+        try { if (ctx.callbackQuery) await ctx.answerCbQuery(); } catch {}
+        ctx.wizard.state.media = [];
+
+        await ctx.reply("Медиа пропущено.");
+
+        await ctx.reply("Шаг 3/5: Введите интервал рассылки (например 1d, 2h, 30m):", Markup.inlineKeyboard([
+            [Markup.button.callback("❌ Отменить", "cancel_post_creation")]
+        ]));
+
+        return this.finishMedia(ctx);
     }
 
     @Action('generation_text')
@@ -136,6 +153,7 @@ export class AdminPostsWizardService extends AdminGetMedia {
             } catch {}
         }
         await ctx.reply("Текст принят. Шаг 2/5: Отправьте медиафайл (фото/видео/документ/аудио):", Markup.inlineKeyboard([
+            [Markup.button.callback("➡️ Пропустить", "skip_media")],
             [Markup.button.callback("❌ Отменить", "cancel_post_creation")]
         ]));
         await ctx.wizard.next();

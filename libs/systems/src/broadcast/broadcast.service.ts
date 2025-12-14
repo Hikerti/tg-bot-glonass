@@ -49,10 +49,8 @@ export class BroadcastService extends AbstractNotificationService {
             }
 
             try {
-                console.log(`[BroadcastService] Received job for text: ${text ? text.substring(0, 50) : '[Empty]'}`);
                 await this.clientBot.telegram.sendMessage(chatId, text);
 
-                console.log(`Сообщение отправлено пользователю ${chatId}`);
             }
 
             catch (error) {

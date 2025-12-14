@@ -33,7 +33,6 @@ export class ExcelUserImportService {
 
         } catch (e) {
             console.error(e);
-            console.log("Ошибка при обработке файла ❌");
         }
     }
 }

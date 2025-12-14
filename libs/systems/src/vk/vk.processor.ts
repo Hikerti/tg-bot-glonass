@@ -14,8 +14,6 @@ export class VkProcessor {
     async handleVkJob(job: Job) {
         try {
             await this.vkService.send(job.data);
-
-            console.log(`[Processor] Vk job ${job.id} completed.`);
         } catch (e) {
             console.error(`[Processor] Error handling vk job ${job.id}:`, e);
             throw e;

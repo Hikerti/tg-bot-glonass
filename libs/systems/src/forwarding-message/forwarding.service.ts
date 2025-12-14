@@ -32,15 +32,12 @@ export abstract class AbstractPostScheduler implements OnModuleInit {
 
     async updatePost(post: PostDTO) {
         try {
-            console.log(`[Scheduler] Attempting to update post ${post.id}...`);
 
             await this.removeScheduledPost(post.id);
 
             if (post.active) {
                 await this.schedulePost(post);
-                console.log(`[Scheduler] Post ${post.id} updated and rescheduled successfully.`);
             } else {
-                console.log(`[Scheduler] Post ${post.id} updated: set to inactive (removed from schedule).`);
             }
         } catch (e) {
             console.error(`[Scheduler] Error updating post ${post.id}:`, e);
@@ -60,9 +57,7 @@ export abstract class AbstractPostScheduler implements OnModuleInit {
                 };
 
                 await this.queue.removeRepeatable(jobToRemove.name, repeatOptions);
-                console.log(`[Scheduler] Removed old repeatable job ${postId}.`);
             } else {
-                console.log(`[Scheduler] No repeatable job found for ID ${postId}.`);
             }
         } catch (e) {
             console.error(`[Scheduler] Error removing repeatable job ${postId}:`, e);
@@ -89,7 +84,6 @@ export abstract class AbstractPostScheduler implements OnModuleInit {
 
     protected async clearQueue(): Promise<void> {
         try {
-            console.log(`[Scheduler] Cleaning up queue for type: ${this.typePost}...`);
             const repeatableJobs = await this.queue.getRepeatableJobs();
 
             for (const job of repeatableJobs) {
@@ -123,8 +117,6 @@ export abstract class AbstractPostScheduler implements OnModuleInit {
             await this.queue.clean(0, 'active');
             await this.queue.clean(0, 'delayed');
             await this.queue.clean(0, 'wait');
-
-            console.log(`[Scheduler] Queue for type: ${this.typePost} cleared successfully.`);
 
         } catch (e) {
             console.error(`[Scheduler] Error during queue cleanup for type ${this.typePost}:`, e);
@@ -166,7 +158,6 @@ export abstract class AbstractPostScheduler implements OnModuleInit {
                     removeOnFail: true,
                 }
             );
-            console.log(`[Scheduler] Post ${post.id} (${this.typePost}) scheduled.`);
 
         } catch (e) {
             console.error(`[Scheduler] Error scheduling post ${post.id}:`, e);

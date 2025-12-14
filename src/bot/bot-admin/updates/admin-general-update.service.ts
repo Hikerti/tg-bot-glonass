@@ -21,7 +21,6 @@ export class AdminGeneralUpdateService implements OnModuleInit {
         ];
         try {
             await this.adminBot.telegram.setMyCommands(adminCommands);
-            console.log('Admin bot: Меню команд успешно установлено.');
         } catch (error) {
             console.error('Ошибка установки меню команд:', error);
         }

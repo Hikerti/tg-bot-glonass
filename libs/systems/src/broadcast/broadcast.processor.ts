@@ -12,10 +12,8 @@ export class BroadcastProcessor {
     @Process()
     async handleBroadcastJob(job: Job) {
         try {
-            console.log(">>>> PROCESSOR STARTED", job.id, job.data);
             await this.tgNotificationService.send(job.data);
 
-            console.log(`[Processor] Broadcast job ${job.id} completed.`);
 
         } catch (e) {
             console.error(`[Processor] Error handling broadcast job ${job.id}:`, e);

@@ -26,7 +26,6 @@ export class UserRepository {
     }
 
     async createMany(users: UserDTO.Create[]): Promise<UserDTO[]> {
-        console.log(users);
         const userEntities = users.map(u => this.userRepository.create({
             name: u.name,
             email: u.email ?? null,
