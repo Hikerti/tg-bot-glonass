@@ -31,7 +31,7 @@ services:
     depends_on:
       - postgres
     ports:
-      - ${DATABASE_UI_PORT}:8080
+      - ${DATABASE_UI_PORT}:4567
     networks:
       - glonass_cluster
 
@@ -72,7 +72,7 @@ services:
     image: nginx:latest
     container_name: nginx
     ports:
-      - "80:80"
+      - "234:234"
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
     depends_on:

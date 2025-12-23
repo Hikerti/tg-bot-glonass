@@ -256,18 +256,18 @@ export class AdminPostsWizardUpdateService extends AdminGetMedia {
             return this.showFinal(ctx);
         }
 
-        // if (ctx.message) {
-        //     const uploaded = await this.uploadMediaFromTelegram(ctx.message as Message).catch(async (e) => {
-        //         console.error(e);
-        //         await ctx.reply('Ошибка при загрузке файла.');
-        //         return null;
-        //     });
-        //
-        //     if (uploaded) {
-        //         s.newMedia!.push(uploaded.url);
-        //         await ctx.reply('Медиа загружено ✔ Отправьте ещё или напишите "стоп"');
-        //     }
-        // }
+        if (ctx.message) {
+            const uploaded = await this.uploadMediaFromTelegram(ctx.message as Message).catch(async (e) => {
+                console.error(e);
+                await ctx.reply('Ошибка при загрузке файла.');
+                return null;
+            });
+
+            if (uploaded) {
+                s.newMedia!.push(uploaded.url);
+                await ctx.reply('Медиа загружено ✔ Отправьте ещё или напишите "стоп"');
+            }
+        }
     }
 
     private async showFinal(ctx: MyContext) {

@@ -10,8 +10,8 @@ export class MailService extends AbstractNotificationService {
 
     constructor(private config: ConfigService) {
         super();
-        const user = "anikaev09072007@mail.ru"
-        const pass = "lUiKVtoxA1eamnBapbL6"
+        const user = 'kz@ostrov59.ru';
+        const pass = 'ROk6aJeARaM980lQb5QX';
 
         this.transporter = nodemailer.createTransport({
             host: 'smtp.mail.ru',
@@ -50,11 +50,11 @@ export class MailService extends AbstractNotificationService {
             const { to, text, attachments = [], subject } = mailData;
 
             await this.transporter.sendMail({
-                from: "anikaev09072007@mail.ru",
-                to,
-                subject,
-                text,
-                attachments: attachments.map(url => ({ path: url })),
+              from: 'kz@ostrov59.ru',
+              to,
+              subject,
+              text,
+              attachments: attachments.map((url) => ({ path: url })),
             });
         } catch (e) {
             console.error(e);
