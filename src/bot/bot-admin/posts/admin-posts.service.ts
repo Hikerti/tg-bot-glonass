@@ -32,11 +32,16 @@ export class AdminPostsService {
 
             await ctx.replyWithMediaGroup(mediaGroup);
 
-            await ctx.reply(data.items[0].text, Markup.inlineKeyboard([
-                [Markup.button.callback('Изменить содержимое', 'edit_post')],
+            await ctx.reply(
+              data.items[0].text,
+              Markup.inlineKeyboard([
+                [Markup.button.callback('Удалить пост', 'delete_post')],
                 [Markup.button.callback('⬅️ Назад', 'prev_users')],
-                !data.isLast ? [Markup.button.callback('Вперёд ➡️', 'next_post')] : [],
-            ]));
+                !data.isLast
+                  ? [Markup.button.callback('Вперёд ➡️', 'next_post')]
+                  : [],
+              ]),
+            );
 
             ctx.session.post = data.items[0];
         } catch (e) {
@@ -45,12 +50,21 @@ export class AdminPostsService {
         }
     }
 
-    @Action('edit_post')
+    @Action('delete_post')
     async editPost(@Ctx() ctx) {
         if (!ctx.session.post) {
-            return ctx.reply("Пост не найден в сессии");
+          return ctx.reply('Пост не найден в сессии');
         }
-        await ctx.scene.enter("update-post-wizard");
+
+        await axios.delete(
+          `${this.config.get<string>('GATE_URL')}/posts`,
+          {
+            method: 'DELETE',
+            params: {
+              id: ctx.session.post.id
+            }
+          },
+        );
     }
 
     @Action('next_post')
