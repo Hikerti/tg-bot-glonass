@@ -1,52 +1,57 @@
-import { IsEmail, IsOptional, IsString } from 'class-validator';
+import { IsEmail, IsEnum, IsOptional, IsString } from 'class-validator';
 import { OmitType, PartialType } from '@nestjs/mapped-types';
-import {User, UserRole} from "./user.entites";
+import { User, UserRole, UserTypeEmail } from './user.entites';
 
 export class UserDTO {
-    @IsString()
-    id: string;
+  @IsString()
+  id: string;
 
-    @IsString()
-    name: string;
+  @IsString()
+  name: string;
 
-    @IsEmail()
-    @IsOptional()
-    email?: string | null;
+  @IsEmail()
+  @IsOptional()
+  email?: string | null;
 
-    @IsString()
-    @IsOptional()
-    tgId?: string | null;
+  @IsString()
+  @IsOptional()
+  tgId?: string | null;
 
-    @IsString()
-    @IsOptional()
-    vkId?: number | null;
+  @IsString()
+  @IsOptional()
+  vkId?: number | null;
 
-    @IsString()
-    role: UserRole;
+  @IsString()
+  role: UserRole;
 
-    @IsString()
-    createdAt: string;
+  @IsString()
+  @IsOptional()
+  typeEmail?: UserTypeEmail;
 
-    @IsString()
-    updatedAt: string;
+  @IsString()
+  createdAt: string;
 
-    static fromModel(model: User): UserDTO {
-        const dateToString = (dateInput: Date | string) => {
-            const dateObject = (dateInput instanceof Date) ? dateInput : new Date(dateInput);
-            return dateObject.toISOString();
-        };
+  @IsString()
+  updatedAt: string;
 
-        return {
-            id: model.id,
-            name: model.name,
-            email: model.email,
-            tgId: model.tgId ?? null,
-            vkId: model.vkId ?? null,
-            role: model.role,
-            createdAt: dateToString(model.createdAt),
-            updatedAt: dateToString(model.updatedAt),
-        }
-    }
+  static fromModel(model: User): UserDTO {
+    const dateToString = (dateInput: Date | string) => {
+      const dateObject =
+        dateInput instanceof Date ? dateInput : new Date(dateInput);
+      return dateObject.toISOString();
+    };
+
+    return {
+      id: model.id,
+      name: model.name,
+      email: model.email,
+      tgId: model.tgId ?? null,
+      vkId: model.vkId ?? null,
+      role: model.role,
+      createdAt: dateToString(model.createdAt),
+      updatedAt: dateToString(model.updatedAt),
+    };
+  }
 }
 
 export namespace UserDTO {

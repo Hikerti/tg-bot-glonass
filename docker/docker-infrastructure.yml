@@ -5,6 +5,16 @@ networks:
     external: true
 
 services:
+  cloudflare-tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflare-tunnel
+    restart: always
+    environment:
+      - TUNNEL_TOKEN=eyJhIjoiZDljZGEzOWY5ZTllZWUzMTljMDMzOWZlY2MzNTE3ZjIiLCJ0IjoiNmRjZWUyNTQtNzkxOC00YzhlLWEzNDUtNGY3OGUxYWE5OGU4IiwicyI6Ik5HTXdNekpoWXpBdE1HVTNNUzAwTWpsaExUazJZVE10TVRVNVlUTXpaVFZoWWpVMSJ9
+    command: tunnel --no-autoupdate run --protocol http2
+    networks:
+      - glonass_cluster
+
   postgres:
     image: postgres:17
     container_name: ${DATABASE_HOST}
@@ -17,11 +27,6 @@ services:
     volumes:
       - ../.deploy/data/postgres:/var/lib/postgresql/data
       - ./postgres/setup.sql:/docker-entrypoint-initdb.d/setup.sql:ro
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d postgres" ]
-      interval: 5s
-      retries: 5
-      timeout: 5s
     networks:
       - glonass_cluster
 
@@ -30,21 +35,12 @@ services:
     container_name: adminer
     depends_on:
       - postgres
-    ports:
-      - ${DATABASE_UI_PORT}:4567
     networks:
       - glonass_cluster
 
   redis:
     image: redis:7
     container_name: redis
-    ports:
-      - "${REDIS_PORT}:6379"
-    healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
-      interval: 5s
-      retries: 5
-      timeout: 5s
     networks:
       - glonass_cluster
 
@@ -55,14 +51,6 @@ services:
       MINIO_ROOT_USER: ${S3_USER}
       MINIO_ROOT_PASSWORD: ${S3_PASSWORD}
     command: server /data --console-address ":${S3_UI_PORT}" --address ":${S3_PORT}"
-    ports:
-      - "${S3_PORT}:${S3_PORT}"
-      - "${S3_UI_PORT}:${S3_UI_PORT}"
-    healthcheck:
-      test: [ "CMD", "mc", "alias", "set", "local", "http://localhost:${S3_PORT}" ]
-      interval: 10s
-      retries: 5
-      timeout: 5s
     volumes:
       - ../.deploy/data/minio:/data
     networks:
@@ -71,10 +59,8 @@ services:
   nginx:
     image: nginx:latest
     container_name: nginx
-    ports:
-      - "234:234"
     volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
     depends_on:
       - minio
       - adminer

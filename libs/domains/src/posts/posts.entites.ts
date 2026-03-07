@@ -1,9 +1,14 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
 
 export enum PostType {
-    TG = 'tg',
-    MAIL = 'mail',
-    VK = 'vk'
+  TG = 'tg',
+  MAIL = 'mail',
+  MAIL2 = 'mail2',
+  MAIL3 = 'mail3',
+  MAIL4 = 'mail4',
+  MAIL5 = 'mail5',
+  MAIL6 = 'mail6',
+  VK = 'vk',
 }
 
 @Entity({ name: 'posts' })

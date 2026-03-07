@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { Repository } from "typeorm";
-import {UserDTO, UserRole, User} from "@domains";
+import { UserDTO, UserRole, User, UserTypeEmail } from '@domains';
 import { PaginationType } from "@shared";
 import { InjectRepository } from "@nestjs/typeorm";
 
@@ -18,6 +18,7 @@ export class UserRepository {
             tgId: userData.tgId ?? null,
             vkId: userData.vkId ?? null,
             role: userData.role as UserRole,
+            typeEmail: userData.typeEmail as UserTypeEmail ?? null,
         });
 
         const user = await this.userRepository.save(userEntity);
@@ -26,13 +27,16 @@ export class UserRepository {
     }
 
     async createMany(users: UserDTO.Create[]): Promise<UserDTO[]> {
-        const userEntities = users.map(u => this.userRepository.create({
+        const userEntities = users.map((u) =>
+          this.userRepository.create({
             name: u.name,
             email: u.email ?? null,
             tgId: u.tgId ?? null,
             vkId: u.vkId ?? null,
+            typeEmail: u.typeEmail as UserTypeEmail ?? null,
             role: UserRole.CLIENT,
-        }));
+          }),
+        );
 
         const savedUsers = await this.userRepository.save(userEntities);
 
@@ -46,11 +50,12 @@ export class UserRepository {
         }
 
         this.userRepository.merge(existingUser, {
-            name: userData.name,
-            email: userData.email,
-            tgId: userData.tgId,
-            vkId: userData.vkId,
-            role: userData.role as UserRole,
+          name: userData.name,
+          email: userData.email,
+          tgId: userData.tgId,
+          vkId: userData.vkId,
+          typeEmail: userData.typeEmail as UserTypeEmail,
+          role: userData.role as UserRole,
         });
 
         const user = await this.userRepository.save(existingUser);
@@ -116,11 +121,11 @@ export class UserRepository {
         let user = await this.findByVkId(vkId);
         if (!user) {
             user = this.userRepository.create({
-                vkId,
-                name: name ?? `VK User ${vkId}`,
-                role: UserRole.CLIENT,
-                email: null,
-                tgId: null,
+              vkId,
+              name: name ?? `VK User ${vkId}`,
+              role: UserRole.CLIENT,
+              email: null,
+              tgId: null,
             });
         } else {
             user.name = name ?? user.name;
